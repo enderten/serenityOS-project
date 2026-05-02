@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SerenityOS</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@latest/dist/liquidGL.min.js" defer></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 50%, #16213e 100%);
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            transition: all 0.6s ease;
+        }
+
+        body.light::before { background: linear-gradient(135deg, #e8f4ff 0%, #b8d4f1 50%, #9ec5e8 100%); }
+        body.custom-wallpaper::before { background-image: var(--custom-wallpaper); }
+        body.light { color: #1a1a3e; }
+
+        /* STATUS BAR */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 24px 0;
+            z-index: 100;
+        }
+
+        .time { font-size: 0.9rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .status-icons { display: flex; gap: 15px; }
+        .status-icons .material-icons { font-size: 18px; cursor: pointer; }
+
+        /* HOME SCREEN */
+        .home-screen {
+            padding: 30px 20px 120px;
+            height: calc(100vh - 44px);
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .home-screen::-webkit-scrollbar { display: none; }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* APP ICONS - ROUND */
+        .app-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        .app-icon.shake { animation: shake 0.5s ease-in-out infinite; }
+
+        @keyframes shake {
+            0%,100% { transform: rotate(0deg); }
+            25% { transform: rotate(-2.5deg); }
+            75% { transform: rotate(2.5deg); }
+        }
+
+        .icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.25);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        body.light .icon {
+            background: rgba(255,255,255,0.55);
+            border: 1.5px solid rgba(59,130,246,0.2);
+        }
+
+        body.large-icons .icon { width: 88px; height: 88px; }
+        body.large-icons .icon .material-icons { font-size: 46px; }
+        body.large-icons .app-name { opacity:0; height:0; margin:0; }
+
+        .icon .material-icons {
+            font-size: 34px;
+            color: white;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+            transition: all 0.3s ease;
+        }
+
+        body.light .icon .material-icons { color: #3b82f6; }
+
+        .app-icon:hover .icon {
+            transform: scale(1.12) translateY(-4px);
+            box-shadow: 0 16px 40px rgba(59,130,246,0.4);
+        }
+
+        .app-icon:active .icon { transform: scale(0.88); }
+
+        .app-name {
+            font-size: 0.8rem;
+            text-align: center;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+            transition: all 0.3s ease;
+        }
+
+        body.light .app-name { text-shadow: 0 1px 6px rgba(255,255,255,0.8); color: #1a1a3e; }
+
+        /* FOLDERS */
+        .folder-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.2);
+            backdrop-filter: blur(12px);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 3px;
+            padding: 10px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            cursor: pointer;
+        }
+
+        body.light .folder-icon {
+            background: rgba(255,255,255,0.55);
+            border: 1.5px solid rgba(59,130,246,0.2);
+        }
+
+        .folder-icon .mini-icon {
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .folder-icon .mini-icon .material-icons { font-size: 11px; color: white; }
+        body.light .folder-icon .mini-icon .material-icons { color: #3b82f6; }
+
+        .folder-wrapper:hover .folder-icon {
+            transform: scale(1.12) translateY(-4px);
+        }
+
+        .folder-wrapper:active .folder-icon { transform: scale(0.88); }
+
+        /* FOLDER MODAL */
+        .folder-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 25000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .folder-modal.show { opacity: 1; pointer-events: all; }
+
+        .folder-modal-inner {
+            background: rgba(30,30,60,0.95);
+            backdrop-filter: blur(40px);
+            border-radius: 36px;
+            padding: 30px;
+            min-width: 280px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        body.light .folder-modal-inner {
+            background: rgba(255,255,255,0.95);
+        }
+
+        @keyframes popIn {
+            from { opacity:0; transform: scale(0.7); }
+            to { opacity:1; transform: scale(1); }
+        }
+
+        .folder-modal-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .folder-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 18px;
+        }
+
+        /* DOCK - FLOATING SUPER ROUNDED */
+        .dock {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 14px 22px;
+            border-radius: 50px;
+            display: flex;
+            gap: 18px;
+            z-index: 1000;
+            background: rgba(20,20,50,0.35);
+            backdrop-filter: blur(40px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        body.light .dock {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(59,130,246,0.15);
+            box-shadow: 0 20px 60px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.08);
+        }
+
+        .dock-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.28);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            border: 1.5px solid rgba(255,255,255,0.12);
+        }
+
+        body.light .dock-icon {
+            background: rgba(255,255,255,0.5);
+            border: 1.5px solid rgba(59,130,246,0.18);
+        }
+
+        .dock-icon:hover { transform: scale(1.18) translateY(-10px); box-shadow: 0 16px 40px rgba(59,130,246,0.4); }
+        .dock-icon:active { transform: scale(0.9); }
+
+        .dock-icon .material-icons {
+            font-size: 30px;
+            color: white;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+        }
+
+        body.light .dock-icon .material-icons { color: #3b82f6; }
+
+        /* HOME BUTTON - only visible inside app */
+        .home-button {
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 31000;
+            border: 2px solid rgba(255,255,255,0.35);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+            transition: all 0.45s cubic-bezier(0.34,1.56,0.64,1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .home-button.visible {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .home-button:hover {
+            transform: translateX(-50%) scale(1.15);
+            box-shadow: 0 12px 40px rgba(59,130,246,0.5);
+            background: rgba(59,130,246,0.3);
+        }
+
+        .home-button:active { transform: translateX(-50%) scale(0.9); }
+
+        .home-button::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .home-button:hover::before { opacity:1; animation: pulse 1.5s ease-in-out infinite; }
+
+        @keyframes pulse {
+            0%,100% { transform:scale(1); opacity:0.6; }
+            50% { transform:scale(1.3); opacity:0; }
+        }
+
+        .home-button .material-icons { font-size: 20px; color: white; }
+
+        /* CONTEXT MENU */
+        .context-menu {
+            position: fixed;
+            background: rgba(20,20,40,0.95);
+            backdrop-filter: blur(30px);
+            border-radius: 28px;
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 10000;
+            min-width: 210px;
+            animation: menuAppear 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        body.light .context-menu { background: rgba(255,255,255,0.96); }
+        .context-menu.show { display: flex; }
+
+        @keyframes menuAppear {
+            from { opacity:0; transform: scale(0.8) translateY(10px); }
+            to { opacity:1; transform: scale(1) translateY(0); }
+        }
+
+        .menu-item {
+            padding: 13px 18px;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .menu-item:hover { background: rgba(59,130,246,0.25); transform: translateX(3px); }
+        .menu-item .material-icons { font-size: 20px; color: #3b82f6; }
+
+        /* PANELS */
+        .control-center, .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background: rgba(18,18,40,0.96);
+            backdrop-filter: blur(50px);
+            z-index: 20000;
+            transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+            overflow-y: auto;
+            border-left: 1px solid rgba(255,255,255,0.07);
+        }
+
+        body.light .control-center, body.light .settings-panel {
+            background: rgba(245,247,255,0.96);
+        }
+
+        .control-center.show, .settings-panel.show { right: 0; }
+
+        .panel-header {
+            padding: 28px 22px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .panel-header h2 { font-size: 1.7rem; font-weight: 700; }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.18);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover { background: rgba(59,130,246,0.4); transform: rotate(90deg); }
+        .close-btn .material-icons { color: white; font-size: 20px; }
+        body.light .close-btn .material-icons { color: #3b82f6; }
+
+        .panel-content { padding: 18px; }
+
+        .brightness-control {
+            background: rgba(59,130,246,0.12);
+            padding: 22px;
+            border-radius: 26px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .brightness-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.15);
+            appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .brightness-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* CONTROL TILES - ROUND + ADAPTIVE */
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 12px;
+        }
+
+        .control-tile {
+            background: rgba(59,130,246,0.13);
+            padding: 20px 16px;
+            border-radius: 26px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            border: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-tile:hover { transform: scale(1.04); }
+        .control-tile.active { background: rgba(59,130,246,0.45); border-color: rgba(59,130,246,0.5); }
+
+        .control-tile .material-icons { font-size: 26px; }
+        .control-tile span.label { font-weight: 600; font-size: 0.9rem; }
+
+        /* SETTINGS */
+        .setting-group { margin-bottom: 26px; }
+
+        .setting-group-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            opacity: 0.5;
+            margin-bottom: 12px;
+            letter-spacing: 0.08em;
+            padding-left: 4px;
+        }
+
+        .setting-item {
+            background: rgba(59,130,246,0.09);
+            padding: 18px;
+            border-radius: 22px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .setting-item:hover { background: rgba(59,130,246,0.18); }
+
+        .setting-info { display: flex; align-items: center; gap: 14px; }
+        .setting-info .material-icons { font-size: 22px; color: #3b82f6; }
+        .setting-label { font-weight: 600; font-size: 0.95rem; }
+        .setting-description { font-size: 0.82rem; opacity: 0.6; margin-top: 2px; }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch.active { background: #3b82f6; }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active::after { left: 25px; }
+
+        /* APP FULLSCREEN - SUCK IN ANIMATION */
+        .app-fullscreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(10,10,26,0.98);
+            z-index: 30000;
+            display: none;
+            flex-direction: column;
+        }
+
+        body.light .app-fullscreen { background: rgba(248,249,255,0.98); }
+
+        .app-fullscreen.show {
+            display: flex;
+            animation: suckIn 0.55s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes suckIn {
+            from { opacity:0; transform: scale(1.28); }
+            to { opacity:1; transform: scale(1); }
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .app-title { font-size: 1.15rem; font-weight: 700; }
+
+        .app-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* CAMERA */
+        #cam {
+            width: 100%;
+            max-width: 640px;
+            border-radius: 24px;
+            background: #000;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .camera-btn {
+            padding: 14px 22px;
+            border-radius: 50px;
+            background: rgba(59,130,246,0.28);
+            border: 2px solid rgba(255,255,255,0.25);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .camera-btn:hover { background: rgba(59,130,246,0.5); transform: scale(1.05); }
+        .camera-btn .material-icons { font-size: 20px; }
+
+        /* GALLERY */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .gallery-item img, .gallery-item video {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .gallery-item button {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(220,50,50,0.85);
+            border: none;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CALCULATOR */
+        .calc-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .calc-display {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border-radius: 24px;
+            padding: 20px 24px;
+            text-align: right;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .calc-expr {
+            font-size: 0.9rem;
+            opacity: 0.5;
+            min-height: 20px;
+            margin-bottom: 6px;
+        }
+
+        .calc-result {
+            font-size: 2.8rem;
+            font-weight: 300;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .calc-btn {
+            height: 68px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.3rem;
+            font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calc-btn:active { transform: scale(0.88); }
+
+        .calc-btn.num {
+            background: rgba(80,80,120,0.6);
+            color: white;
+        }
+
+        .calc-btn.op {
+            background: rgba(59,130,246,0.7);
+            color: white;
+        }
+
+        .calc-btn.fn {
+            background: rgba(120,120,160,0.5);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .calc-btn.eq {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .calc-btn.zero { border-radius: 34px; grid-column: span 2; justify-content: flex-start; padding-left: 26px; }
+
+        .calc-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
+
+        /* MISC */
+        #wallpaper-input, #media-picker { display: none; }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+        }
+
+        .overlay.show { opacity:1; pointer-events:all; }
+
+        .brightness-overlay {
+            position: fixed;
+            inset: 0;
+            background: black;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50000;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="dark">
+    <div class="brightness-overlay" id="brightness-overlay"></div>
+
+    <div class="status-bar">
+        <div class="time" id="time">12:00</div>
+        <div class="status-icons">
+            <span class="material-icons" onclick="toggleControlCenter()">tune</span>
+            <span class="material-icons">signal_cellular_alt</span>
+            <span class="material-icons">battery_full</span>
+        </div>
+    </div>
+
+    <div class="home-screen" id="home-screen">
+        <div class="app-grid" id="app-grid"></div>
+    </div>
+
+    <div class="dock liquidGL" id="dock">
+        <div class="dock-icon" onclick="openApp('phone','Phone')"><span class="material-icons">phone</span></div>
+        <div class="dock-icon" onclick="openApp('messages','Messages')"><span class="material-icons">message</span></div>
+        <div class="dock-icon" onclick="openApp('browser','Browser')"><span class="material-icons">public</span></div>
+        <div class="dock-icon" onclick="openSettings()"><span class="material-icons">settings</span></div>
+    </div>
+
+    <div class="home-button" id="home-button" onclick="goHome()">
+        <span class="material-icons">home</span>
+    </div>
+
+    <div class="context-menu" id="context-menu">
+        <div class="menu-item" onclick="createFolder()"><span class="material-icons">create_new_folder</span><span>New Folder</span></div>
+        <div class="menu-item" onclick="toggleIconSize()"><span class="material-icons">zoom_in</span><span id="icon-size-text">Large Icons</span></div>
+        <div class="menu-item" onclick="openSettings()"><span class="material-icons">settings</span><span>Settings</span></div>
+    </div>
+
+    <div class="control-center" id="control-center">
+        <div class="panel-header">
+            <h2>Controls</h2>
+            <button class="close-btn" onclick="toggleControlCenter()"><span class="material-icons">close</span></button>
+        </div>
+        <div class="panel-content">
+            <div class="brightness-control">
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+                    <span class="material-icons" id="cc-brightness-icon" style="color:#3b82f6;font-size:26px;">brightness_6</span>
+                    <span style="font-weight:600;">Brightness</span>
+                </div>
+                <input type="range" class="brightness-slider" id="brightness-slider" min="20" max="100" value="100" oninput="adjustBrightness(this.value)">
+            </div>
+            <div class="control-grid">
+                <div class="control-tile" id="ct-wifi" onclick="this.classList.toggle('active')">
+                    <span class="material-icons" id="ct-wifi-icon" style="color:#3b82f6;">wifi</span>
+                    <span class="label">WiFi</span>
+                </div>
+                <div class="control-tile" id="ct-bt" onclick="this.classList.toggle('active')">
+                    <span class="material-icons" id="ct-bt-icon" style="color:#3b82f6;">bluetooth</span>
+                    <span class="label">Bluetooth</span>
+                </div>
+                <div class="control-tile" id="ct-ap" onclick="this.classList.toggle('active')">
+                    <span class="material-icons" id="ct-ap-icon" style="color:#3b82f6;">flight</span>
+                    <span class="label">Airplane</span>
+                </div>
+                <div class="control-tile" id="ct-dnd" onclick="this.classList.toggle('active')">
+                    <span class="material-icons" id="ct-dnd-icon" style="color:#3b82f6;">do_not_disturb</span>
+                    <span class="label">Do Not Disturb</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-panel" id="settings-panel">
+        <div class="panel-header">
+            <h2>Settings</h2>
+            <button class="close-btn" onclick="closeSettings()"><span class="material-icons">close</span></button>
+        </div>
+        <div class="panel-content">
+            <div class="setting-group">
+                <div class="setting-group-title">Appearance</div>
+                <div class="setting-item" onclick="toggleTheme()">
+                    <div class="setting-info"><span class="material-icons">brightness_6</span><div><div class="setting-label">Dark Mode</div><div class="setting-description">Switch themes</div></div></div>
+                    <div class="toggle-switch active" id="theme-toggle"></div>
+                </div>
+                <div class="setting-item" onclick="toggleIconSize()">
+                    <div class="setting-info"><span class="material-icons">photo_size_select_large</span><div><div class="setting-label">Large Icons</div><div class="setting-description">Bigger icons</div></div></div>
+                    <div class="toggle-switch" id="icon-size-toggle"></div>
+                </div>
+            </div>
+            <div class="setting-group">
+                <div class="setting-group-title">Display</div>
+                <div class="setting-item" onclick="document.getElementById('wallpaper-input').click()">
+                    <div class="setting-info"><span class="material-icons">wallpaper</span><div><div class="setting-label">Custom Wallpaper</div><div class="setting-description">Upload background</div></div></div>
+                    <span class="material-icons" style="color:#3b82f6;">chevron_right</span>
+                </div>
+            </div>
+            <div class="setting-group">
+                <div class="setting-group-title">Privacy</div>
+                <div class="setting-item" onclick="togglePrivacy(this,'camera')">
+                    <div class="setting-info"><span class="material-icons">camera_alt</span><div><div class="setting-label">Camera</div><div class="setting-description">Camera permissions</div></div></div>
+                    <div class="toggle-switch active" id="camera-toggle"></div>
+                </div>
+            </div>
+            <div class="setting-group">
+                <div class="setting-group-title">About</div>
+                <div class="setting-item">
+                    <div class="setting-info"><span class="material-icons">info</span><div><div class="setting-label">SerenityOS</div><div class="setting-description">Version 1.2 Alpha</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-fullscreen" id="app-fullscreen">
+        <div class="app-header"><div class="app-title" id="app-title">App</div></div>
+        <div class="app-content" id="app-content"></div>
+    </div>
+
+    <!-- FOLDER MODAL -->
+    <div class="folder-modal" id="folder-modal" onclick="closeFolderModal(event)">
+        <div class="folder-modal-inner">
+            <div class="folder-modal-title" id="folder-modal-title">Folder</div>
+            <div class="folder-modal-grid" id="folder-modal-grid"></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
+    <input type="file" id="wallpaper-input" accept="image/*" onchange="loadCustomWallpaper(this)">
+    <input type="file" id="media-picker" accept="image/*,video/*" multiple>
+
+    <script>
+        const myApps=[
+            {name:'Camera',icon:'camera_alt',id:'camera'},
+            {name:'Gallery',icon:'photo_library',id:'gallery'},
+            {name:'Music',icon:'music_note',id:'music'},
+            {name:'Files',icon:'folder',id:'files'},
+            {name:'Calendar',icon:'calendar_today',id:'calendar'},
+            {name:'Clock',icon:'schedule',id:'clock'},
+            {name:'Calculator',icon:'calculate',id:'calculator'},
+            {name:'Notes',icon:'note',id:'notes'},
+            {name:'Contacts',icon:'contacts',id:'contacts'},
+            {name:'Weather',icon:'wb_sunny',id:'weather'},
+            {name:'Maps',icon:'map',id:'maps'},
+            {name:'Email',icon:'email',id:'email'}
+        ];
+
+        let largeIconsEnabled=false,longPressTimer,permissions={camera:true};
+        let stream,recorder,chunks=[];
+        let folders=JSON.parse(localStorage.getItem('folders')||'[]');
+        let calcExpr='',calcDisplay='0';
+
+        function populateApps(){
+            const grid=document.getElementById('app-grid');
+            grid.innerHTML='';
+            // Render folders first
+            folders.forEach((folder,fi)=>{
+                const wrap=document.createElement('div');
+                wrap.className='app-icon folder-wrapper';
+                wrap.onclick=()=>openFolder(fi);
+                const folderEl=document.createElement('div');
+                folderEl.className='folder-icon';
+                // Show up to 4 mini icons
+                folder.apps.slice(0,4).forEach(appId=>{
+                    const app=myApps.find(a=>a.id===appId);
+                    if(app){
+                        const mini=document.createElement('div');
+                        mini.className='mini-icon';
+                        mini.innerHTML=`<span class="material-icons">${app.icon}</span>`;
+                        folderEl.appendChild(mini);
+                    }
+                });
+                const name=document.createElement('div');
+                name.className='app-name';
+                name.textContent=folder.name;
+                wrap.appendChild(folderEl);
+                wrap.appendChild(name);
+                grid.appendChild(wrap);
+            });
+            // Then apps not in any folder
+            const appsInFolders=folders.flatMap(f=>f.apps);
+            myApps.filter(app=>!appsInFolders.includes(app.id)).forEach((app,i)=>{
+                const el=document.createElement('div');
+                el.className='app-icon';
+                el.style.animationDelay=`${i*0.04}s`;
+                el.style.animation=`iconAppear 0.45s ease ${i*0.04}s both`;
+                el.onclick=()=>openApp(app.id,app.name);
+                el.innerHTML=`<div class="icon"><span class="material-icons">${app.icon}</span></div><div class="app-name">${app.name}</div>`;
+                grid.appendChild(el);
+            });
+        }
+
+        // Long press
+        const homeScreen=document.getElementById('home-screen');
+        homeScreen.addEventListener('touchstart',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e.touches[0]),500);});
+        homeScreen.addEventListener('touchend',()=>clearTimeout(longPressTimer));
+        homeScreen.addEventListener('touchmove',()=>clearTimeout(longPressTimer));
+        homeScreen.addEventListener('mousedown',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e),500);});
+        homeScreen.addEventListener('mouseup',()=>clearTimeout(longPressTimer));
+        homeScreen.addEventListener('mousemove',()=>clearTimeout(longPressTimer));
+
+        function showContextMenu(touch){
+            const menu=document.getElementById('context-menu'),overlay=document.getElementById('overlay');
+            document.querySelectorAll('.app-icon').forEach(icon=>icon.classList.add('shake'));
+            menu.classList.add('show');
+            overlay.classList.add('show');
+            const x=touch.clientX||touch.pageX;
+            const y=touch.clientY||touch.pageY;
+            menu.style.left=`${Math.min(x,window.innerWidth-230)}px`;
+            menu.style.top=`${Math.min(y,window.innerHeight-200)}px`;
+        }
+
+        // FOLDERS
+        function createFolder(){
+            const name=prompt('Folder name:','Folder');
+            if(!name)return;
+            const available=myApps.filter(app=>!folders.flatMap(f=>f.apps).includes(app.id));
+            const chosen=[];
+            available.forEach(app=>{
+                if(confirm(`Add ${app.name} to folder?`))chosen.push(app.id);
+            });
+            if(chosen.length<2){alert('Need at least 2 apps');return;}
+            folders.push({name,apps:chosen});
+            localStorage.setItem('folders',JSON.stringify(folders));
+            populateApps();
+            closeAll();
+        }
+
+        function openFolder(fi){
+            const folder=folders[fi];
+            document.getElementById('folder-modal-title').textContent=folder.name;
+            const grid=document.getElementById('folder-modal-grid');
+            grid.innerHTML='';
+            folder.apps.forEach(appId=>{
+                const app=myApps.find(a=>a.id===appId);
+                if(!app)return;
+                const el=document.createElement('div');
+                el.className='app-icon';
+                el.onclick=()=>{closeFolderModal();setTimeout(()=>openApp(app.id,app.name),200);};
+                el.innerHTML=`<div class="icon"><span class="material-icons">${app.icon}</span></div><div class="app-name">${app.name}</div>`;
+                grid.appendChild(el);
+            });
+            document.getElementById('folder-modal').classList.add('show');
+        }
+
+        function closeFolderModal(e){
+            if(!e||e.target===document.getElementById('folder-modal'))
+                document.getElementById('folder-modal').classList.remove('show');
+        }
+
+        // HOME BUTTON
+        function setHomeButtonVisible(visible){
+            const btn=document.getElementById('home-button');
+            const dock=document.getElementById('dock');
+            if(visible){
+                btn.classList.add('visible');
+                dock.style.opacity='0';
+                dock.style.pointerEvents='none';
+                dock.style.transform='translateX(-50%) translateY(20px)';
+            }else{
+                btn.classList.remove('visible');
+                dock.style.opacity='';
+                dock.style.pointerEvents='';
+                dock.style.transform='';
+            }
+        }
+
+        function goHome(){closeApp();}
+
+        // APPS
+        async function openApp(appId,appName){
+            const fullscreen=document.getElementById('app-fullscreen');
+            const title=document.getElementById('app-title');
+            const content=document.getElementById('app-content');
+            title.textContent=appName;
+
+            if(appId==='camera'){
+                if(!permissions.camera){
+                    content.innerHTML='<p style="text-align:center;padding:40px;">Camera disabled in Settings</p>';
+                    fullscreen.classList.add('show');
+                    setHomeButtonVisible(true);
+                    return;
+                }
+                content.innerHTML=`
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+                        <video id="cam" autoplay playsinline></video>
+                        <div class="camera-controls">
+                            <button class="camera-btn" onclick="takePhoto()"><span class="material-icons">camera_alt</span>Photo</button>
+                            <button class="camera-btn" onclick="toggleVideo()"><span class="material-icons">videocam</span><span id="vbtn">Start Video</span></button>
+                            <button class="camera-btn" onclick="document.getElementById('media-picker').click()"><span class="material-icons">upload</span>Upload</button>
+                        </div>
+                    </div>`;
+                fullscreen.classList.add('show');
+                setHomeButtonVisible(true);
+                try{
+                    stream=await navigator.mediaDevices.getUserMedia({video:true});
+                    document.getElementById('cam').srcObject=stream;
+                }catch(e){
+                    content.innerHTML='<p style="text-align:center;padding:40px;">Camera access denied</p>';
+                }
+            }else if(appId==='gallery'){
+                content.innerHTML='<div id="gallery" class="gallery"></div>';
+                fullscreen.classList.add('show');
+                setHomeButtonVisible(true);
+                renderGallery();
+            }else if(appId==='calculator'){
+                renderCalculator(content);
+                fullscreen.classList.add('show');
+                setHomeButtonVisible(true);
+            }else{
+                content.innerHTML=`<p style="padding:30px;opacity:0.6;">${appName} coming soon!</p>`;
+                fullscreen.classList.add('show');
+                setHomeButtonVisible(true);
+            }
+        }
+
+        // CALCULATOR
+        function renderCalculator(content){
+            content.innerHTML=`
+            <div class="calc-wrap">
+                <div class="calc-display">
+                    <div class="calc-expr" id="calc-expr"></div>
+                    <div class="calc-result" id="calc-result">0</div>
+                </div>
+                <div class="calc-buttons">
+                    <button class="calc-btn fn" onclick="calcFn('AC')">AC</button>
+                    <button class="calc-btn fn" onclick="calcFn('+/-')">+/-</button>
+                    <button class="calc-btn fn" onclick="calcFn('%')">%</button>
+                    <button class="calc-btn op" onclick="calcOp('/')">÷</button>
+
+                    <button class="calc-btn num" onclick="calcNum('7')">7</button>
+                    <button class="calc-btn num" onclick="calcNum('8')">8</button>
+                    <button class="calc-btn num" onclick="calcNum('9')">9</button>
+                    <button class="calc-btn op" onclick="calcOp('*')">×</button>
+
+                    <button class="calc-btn num" onclick="calcNum('4')">4</button>
+                    <button class="calc-btn num" onclick="calcNum('5')">5</button>
+                    <button class="calc-btn num" onclick="calcNum('6')">6</button>
+                    <button class="calc-btn op" onclick="calcOp('-')">−</button>
+
+                    <button class="calc-btn num" onclick="calcNum('1')">1</button>
+                    <button class="calc-btn num" onclick="calcNum('2')">2</button>
+                    <button class="calc-btn num" onclick="calcNum('3')">3</button>
+                    <button class="calc-btn op" onclick="calcOp('+')">+</button>
+
+                    <button class="calc-btn num zero" onclick="calcNum('0')">0</button>
+                    <button class="calc-btn num" onclick="calcNum('.')">.</button>
+                    <button class="calc-btn eq" onclick="calcEquals()">=</button>
+                </div>
+            </div>`;
+            calcExpr='';calcDisplay='0';
+        }
+
+        function calcNum(n){
+            if(calcDisplay==='0'&&n!=='.')calcDisplay=n;
+            else calcDisplay+=n;
+            document.getElementById('calc-result').textContent=calcDisplay;
+        }
+
+        function calcOp(op){
+            calcExpr+=calcDisplay+op;
+            calcDisplay='0';
+            document.getElementById('calc-expr').textContent=calcExpr;
+            document.getElementById('calc-result').textContent='0';
+        }
+
+        function calcEquals(){
+            try{
+                const expr=calcExpr+calcDisplay;
+                const result=Function('"use strict";return ('+expr+')')();
+                document.getElementById('calc-expr').textContent=expr+' =';
+                const r=parseFloat(result.toFixed(10)).toString();
+                document.getElementById('calc-result').textContent=r;
+                calcDisplay=r;calcExpr='';
+            }catch(e){
+                document.getElementById('calc-result').textContent='Error';
+                calcDisplay='0';calcExpr='';
+            }
+        }
+
+        function calcFn(fn){
+            if(fn==='AC'){calcDisplay='0';calcExpr='';document.getElementById('calc-expr').textContent='';document.getElementById('calc-result').textContent='0';}
+            else if(fn==='+/-'){calcDisplay=String(-parseFloat(calcDisplay));document.getElementById('calc-result').textContent=calcDisplay;}
+            else if(fn==='%'){calcDisplay=String(parseFloat(calcDisplay)/100);document.getElementById('calc-result').textContent=calcDisplay;}
+        }
+
+        // CAMERA FUNCTIONS
+        function takePhoto(){
+            let cam=document.getElementById('cam');if(!cam)return;
+            let canvas=document.createElement('canvas');
+            canvas.width=640;canvas.height=480;
+            canvas.getContext('2d').drawImage(cam,0,0,640,480);
+            saveMedia('image',canvas.toDataURL());
+            alert('Photo saved!');
+        }
+
+        function toggleVideo(){
+            if(!recorder){
+                recorder=new MediaRecorder(stream);
+                recorder.ondataavailable=e=>chunks.push(e.data);
+                recorder.onstop=()=>{
+                    let blob=new Blob(chunks,{type:'video/webm'});
+                    saveMedia('video',URL.createObjectURL(blob));
+                    chunks=[];alert('Video saved!');
+                };
+                recorder.start();
+                document.getElementById('vbtn').textContent='Stop Video';
+            }else{
+                recorder.stop();recorder=null;
+                document.getElementById('vbtn').textContent='Start Video';
+            }
+        }
+
+        function saveMedia(type,data){
+            let items=JSON.parse(localStorage.media||'[]');
+            items.push({type,data});
+            localStorage.media=JSON.stringify(items);
+        }
+
+        function renderGallery(){
+            let gallery=document.getElementById('gallery');if(!gallery)return;
+            gallery.innerHTML='';
+            let items=JSON.parse(localStorage.media||'[]');
+            items.forEach((i,idx)=>{
+                let c=document.createElement('div');c.className='gallery-item';
+                let el=i.type=='image'?document.createElement('img'):document.createElement('video');
+                el.src=i.data;el.controls=i.type=='video';
+                let del=document.createElement('button');del.innerHTML='&times;';
+                del.onclick=()=>{items.splice(idx,1);localStorage.media=JSON.stringify(items);renderGallery();};
+                c.appendChild(el);c.appendChild(del);gallery.appendChild(c);
+            });
+        }
+
+        document.getElementById('media-picker').onchange=e=>{
+            [...e.target.files].forEach(f=>{saveMedia(f.type.startsWith('video')?'video':'image',URL.createObjectURL(f));});
+            alert('Media uploaded!');
+        };
+
+        function closeApp(){
+            if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+            if(recorder){recorder.stop();recorder=null;}
+            document.getElementById('app-fullscreen').classList.remove('show');
+            setHomeButtonVisible(false);
+        }
+
+        function toggleControlCenter(){
+            const cc=document.getElementById('control-center'),overlay=document.getElementById('overlay');
+            if(cc.classList.contains('show')){cc.classList.remove('show');overlay.classList.remove('show');}
+            else{closeAll();cc.classList.add('show');overlay.classList.add('show');}
+        }
+
+        function adjustBrightness(v){
+            const ov=document.getElementById('brightness-overlay');
+            ov.style.opacity=((100-v)/80)*0.6;
+            localStorage.setItem('brightness',v);
+        }
+
+        function openSettings(){closeAll();document.getElementById('settings-panel').classList.add('show');document.getElementById('overlay').classList.add('show');}
+        function closeSettings(){document.getElementById('settings-panel').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
+
+        function toggleIconSize(){
+            const body=document.body,toggle=document.getElementById('icon-size-toggle'),text=document.getElementById('icon-size-text');
+            largeIconsEnabled=!largeIconsEnabled;
+            if(largeIconsEnabled){body.classList.add('large-icons');toggle.classList.add('active');if(text)text.textContent='Normal Icons';}
+            else{body.classList.remove('large-icons');toggle.classList.remove('active');if(text)text.textContent='Large Icons';}
+            localStorage.setItem('largeIcons',largeIconsEnabled);closeAll();
+        }
+
+        function toggleTheme(){
+            const body=document.body,toggle=document.getElementById('theme-toggle');
+            if(body.classList.contains('dark')){body.classList.remove('dark');body.classList.add('light');toggle.classList.remove('active');localStorage.setItem('theme','light');}
+            else{body.classList.remove('light');body.classList.add('dark');toggle.classList.add('active');localStorage.setItem('theme','dark');}
+            setTimeout(updateAdaptiveColors,50);
+        }
+
+        function togglePrivacy(item,type){
+            const toggle=item.querySelector('.toggle-switch');
+            permissions[type]=!permissions[type];
+            toggle.classList.toggle('active');
+            localStorage.setItem('permissions',JSON.stringify(permissions));
+        }
+
+        // ADAPTIVE COLORS - icons, dock, panels, control tiles ALL adapt
+        function updateAdaptiveColors(){
+            const body=document.body;
+            if(body.classList.contains('custom-wallpaper')){
+                const url=body.style.getPropertyValue('--custom-wallpaper').replace(/url\(['"]?(.+?)['"]?\)/,'$1');
+                const img=new Image();
+                img.crossOrigin='Anonymous';
+                img.onload=function(){
+                    const canvas=document.createElement('canvas');
+                    const ctx=canvas.getContext('2d');
+                    canvas.width=100;canvas.height=100;
+                    ctx.drawImage(img,0,0,100,100);
+                    try{
+                        const data=ctx.getImageData(0,0,100,100).data;
+                        let r=0,g=0,b=0;
+                        for(let i=0;i<data.length;i+=4){r+=data[i];g+=data[i+1];b+=data[i+2];}
+                        const px=data.length/4;
+                        r=Math.floor(r/px);g=Math.floor(g/px);b=Math.floor(b/px);
+                        applyColors(r,g,b);
+                    }catch(e){applyDefaultColors();}
+                };
+                img.onerror=()=>applyDefaultColors();
+                img.src=url;
+            }else{
+                applyDefaultColors();
+            }
+        }
+
+        function applyDefaultColors(){
+            const isDark=document.body.classList.contains('dark');
+            if(isDark) applyColors(59,130,246);
+            else applyColors(180,210,241);
+        }
+
+        function applyColors(r,g,b){
+            const iconBg=`rgba(${r},${g},${b},0.32)`;
+            const iconBorder=`rgba(${r},${g},${b},0.45)`;
+            const panelBg=`rgba(${Math.max(r-30,0)},${Math.max(g-30,0)},${Math.min(b+20,255)},0.97)`;
+            const tileBg=`rgba(${r},${g},${b},0.18)`;
+            const tileActiveBg=`rgba(${r},${g},${b},0.55)`;
+            const accentColor=`rgb(${r},${g},${b})`;
+
+            // Icons + dock
+            document.querySelectorAll('.icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
+            document.querySelectorAll('.dock-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
+            document.querySelectorAll('.folder-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
+
+            // Panels background
+            document.querySelectorAll('.control-center, .settings-panel, .context-menu').forEach(el=>{
+                el.style.background=panelBg;
+            });
+
+            // Control tiles
+            document.querySelectorAll('.control-tile').forEach(el=>{
+                el.style.background=tileBg;
+                el.style.borderColor=iconBorder;
+            });
+            document.querySelectorAll('.control-tile.active').forEach(el=>{
+                el.style.background=tileActiveBg;
+            });
+
+            // Control tile icons color
+            document.querySelectorAll('.control-tile .material-icons, #cc-brightness-icon').forEach(el=>{
+                el.style.color=accentColor;
+            });
+        }
+
+        function loadCustomWallpaper(input){
+            const file=input.files[0];
+            if(file){
+                const reader=new FileReader();
+                reader.onload=e=>{
+                    document.body.style.setProperty('--custom-wallpaper',`url(${e.target.result})`);
+                    document.body.classList.add('custom-wallpaper');
+                    localStorage.setItem('customWallpaper',e.target.result);
+                    setTimeout(updateAdaptiveColors,200);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function closeAll(){
+            document.getElementById('control-center').classList.remove('show');
+            document.getElementById('settings-panel').classList.remove('show');
+            document.getElementById('context-menu').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+            document.querySelectorAll('.app-icon').forEach(icon=>icon.classList.remove('shake'));
+        }
+
+        function updateTime(){
+            const now=new Date();
+            document.getElementById('time').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+
+        // INIT
+        populateApps();
+        updateTime();
+        setInterval(updateTime,1000);
+
+        const savedTheme=localStorage.getItem('theme');
+        if(savedTheme==='light'){document.body.classList.remove('dark');document.body.classList.add('light');document.getElementById('theme-toggle').classList.remove('active');}
+
+        const savedIconSize=localStorage.getItem('largeIcons');
+        if(savedIconSize==='true'){largeIconsEnabled=true;document.body.classList.add('large-icons');document.getElementById('icon-size-toggle').classList.add('active');}
+
+        const savedBrightness=localStorage.getItem('brightness');
+        if(savedBrightness){document.getElementById('brightness-slider').value=savedBrightness;adjustBrightness(savedBrightness);}
+
+        const savedWallpaper=localStorage.getItem('customWallpaper');
+        if(savedWallpaper){document.body.style.setProperty('--custom-wallpaper',`url(${savedWallpaper})`);document.body.classList.add('custom-wallpaper');setTimeout(updateAdaptiveColors,300);}
+
+        const savedPermissions=localStorage.getItem('permissions');
+        if(savedPermissions){permissions=JSON.parse(savedPermissions);if(!permissions.camera)document.getElementById('camera-toggle').classList.remove('active');}
+
+        updateAdaptiveColors();
+
+        window.addEventListener('load',()=>{
+            setTimeout(()=>{
+                if(typeof liquidGL!=='undefined'){
+                    try{liquidGL({target:'.liquidGL',snapshot:'body',resolution:2,refraction:0.01,bevelDepth:0.08,bevelWidth:0.15,frost:2,shadow:true,specular:true,reveal:'fade'});}
+                    catch(e){}
+                }
+                updateAdaptiveColors();
+            },1000);
+        });
+    </script>
+</body>
+</html>
