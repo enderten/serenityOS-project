@@ -8,14 +8,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@latest/dist/liquidGL.min.js" defer></script>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-user-select:none; }
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            user-select: none; -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        :root {
+            --accent: 59, 130, 246;
+            --accent-hex: #3b82f6;
+        }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             color: white;
             height: 100vh;
             overflow: hidden;
             position: relative;
+            background: #0f0f1a;
         }
 
         body::before {
@@ -26,7 +38,7 @@
             background-size: cover;
             background-position: center;
             z-index: -1;
-            transition: all 0.6s ease;
+            transition: opacity 0.5s ease;
         }
 
         body.light::before { background: linear-gradient(135deg, #e8f4ff 0%, #b8d4f1 50%, #9ec5e8 100%); }
@@ -38,17 +50,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 24px 0;
+            padding: 12px 24px 0;
             z-index: 100;
+            position: relative;
         }
 
         .time { font-size: 0.9rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-        .status-icons { display: flex; gap: 15px; }
-        .status-icons .material-icons { font-size: 18px; cursor: pointer; }
+        .status-icons { display: flex; gap: 14px; align-items: center; }
+        .status-icons .material-icons { font-size: 17px; cursor: pointer; opacity: 0.9; }
 
         /* HOME SCREEN */
         .home-screen {
-            padding: 30px 20px 120px;
+            padding: 28px 20px 130px;
             height: calc(100vh - 44px);
             overflow-y: auto;
             scrollbar-width: none;
@@ -58,19 +71,20 @@
         .app-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 22px;
+            gap: 20px;
             max-width: 800px;
             margin: 0 auto;
         }
 
-        /* APP ICONS - ROUND */
+        /* ICONS */
         .app-icon {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            -webkit-tap-highlight-color: transparent;
         }
 
         .app-icon.shake { animation: shake 0.5s ease-in-out infinite; }
@@ -82,97 +96,97 @@
         }
 
         .icon {
-            width: 72px;
-            height: 72px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: rgba(59,130,246,0.25);
+            background: rgba(var(--accent), 0.25);
             backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
-            border: 1.5px solid rgba(255,255,255,0.2);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+            border: 1.5px solid rgba(255,255,255,0.18);
             transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+            position: relative;
+            overflow: hidden;
         }
 
         body.light .icon {
             background: rgba(255,255,255,0.55);
-            border: 1.5px solid rgba(59,130,246,0.2);
+            border: 1.5px solid rgba(var(--accent),0.2);
         }
 
-        body.large-icons .icon { width: 88px; height: 88px; }
-        body.large-icons .icon .material-icons { font-size: 46px; }
-        body.large-icons .app-name { opacity:0; height:0; margin:0; }
+        body.large-icons .icon { width: 86px; height: 86px; }
+        body.large-icons .icon .material-icons { font-size: 44px; }
+        body.large-icons .app-name { opacity:0; height:0; margin:0; overflow:hidden; }
 
         .icon .material-icons {
-            font-size: 34px;
+            font-size: 33px;
             color: white;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
-            transition: all 0.3s ease;
+            filter: drop-shadow(0 1px 4px rgba(0,0,0,0.3));
+            position: relative;
+            z-index: 1;
         }
 
-        body.light .icon .material-icons { color: #3b82f6; }
+        body.light .icon .material-icons { color: var(--accent-hex); }
 
         .app-icon:hover .icon {
-            transform: scale(1.12) translateY(-4px);
-            box-shadow: 0 16px 40px rgba(59,130,246,0.4);
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 14px 36px rgba(0,0,0,0.3);
         }
 
         .app-icon:active .icon { transform: scale(0.88); }
 
         .app-name {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-align: center;
-            max-width: 80px;
+            max-width: 78px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             font-weight: 600;
-            text-shadow: 0 1px 6px rgba(0,0,0,0.7);
-            transition: all 0.3s ease;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.7);
         }
 
-        body.light .app-name { text-shadow: 0 1px 6px rgba(255,255,255,0.8); color: #1a1a3e; }
+        body.light .app-name { text-shadow: none; color: #1a1a3e; }
 
-        /* FOLDERS */
+        /* FOLDER */
+        .folder-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         .folder-icon {
-            width: 72px;
-            height: 72px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: rgba(59,130,246,0.2);
+            background: rgba(var(--accent), 0.2);
             backdrop-filter: blur(12px);
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
             gap: 3px;
-            padding: 10px;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
-            border: 1.5px solid rgba(255,255,255,0.2);
+            padding: 12px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+            border: 1.5px solid rgba(255,255,255,0.18);
             transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-            cursor: pointer;
         }
 
-        body.light .folder-icon {
-            background: rgba(255,255,255,0.55);
-            border: 1.5px solid rgba(59,130,246,0.2);
-        }
+        .folder-wrapper:hover .folder-icon { transform: scale(1.1) translateY(-4px); }
+        .folder-wrapper:active .folder-icon { transform: scale(0.88); }
 
-        .folder-icon .mini-icon {
+        .mini-icon {
             border-radius: 50%;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.25);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .folder-icon .mini-icon .material-icons { font-size: 11px; color: white; }
-        body.light .folder-icon .mini-icon .material-icons { color: #3b82f6; }
-
-        .folder-wrapper:hover .folder-icon {
-            transform: scale(1.12) translateY(-4px);
-        }
-
-        .folder-wrapper:active .folder-icon { transform: scale(0.88); }
+        .mini-icon .material-icons { font-size: 10px; color: white; }
 
         /* FOLDER MODAL */
         .folder-modal {
@@ -182,8 +196,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(20px);
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(24px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease;
@@ -192,18 +206,14 @@
         .folder-modal.show { opacity: 1; pointer-events: all; }
 
         .folder-modal-inner {
-            background: rgba(30,30,60,0.95);
-            backdrop-filter: blur(40px);
-            border-radius: 36px;
-            padding: 30px;
+            background: rgba(var(--accent), 0.15);
+            backdrop-filter: blur(50px);
+            border-radius: 38px;
+            padding: 28px;
             min-width: 280px;
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
             animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-        }
-
-        body.light .folder-modal-inner {
-            background: rgba(255,255,255,0.95);
         }
 
         @keyframes popIn {
@@ -222,83 +232,87 @@
         .folder-modal-grid {
             display: grid;
             grid-template-columns: repeat(3,1fr);
-            gap: 18px;
+            gap: 16px;
         }
 
-        /* DOCK - FLOATING SUPER ROUNDED */
+        /* DOCK */
         .dock {
             position: fixed;
-            bottom: 28px;
+            bottom: 26px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 14px 22px;
-            border-radius: 50px;
+            padding: 13px 20px;
+            border-radius: 999px;
             display: flex;
-            gap: 18px;
+            gap: 16px;
             z-index: 1000;
-            background: rgba(20,20,50,0.35);
-            backdrop-filter: blur(40px);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(10,10,30,0.3);
+            backdrop-filter: blur(50px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.07);
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
         }
 
         body.light .dock {
-            background: rgba(255,255,255,0.25);
-            border: 1px solid rgba(59,130,246,0.15);
-            box-shadow: 0 20px 60px rgba(59,130,246,0.15), 0 0 0 1px rgba(59,130,246,0.08);
+            background: rgba(255,255,255,0.22);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.5);
+        }
+
+        .dock.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-50%) translateY(20px);
         }
 
         .dock-icon {
-            width: 58px;
-            height: 58px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-            background: rgba(59,130,246,0.28);
-            backdrop-filter: blur(10px);
+            background: rgba(var(--accent), 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
-            border: 1.5px solid rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            -webkit-tap-highlight-color: transparent;
         }
 
         body.light .dock-icon {
             background: rgba(255,255,255,0.5);
-            border: 1.5px solid rgba(59,130,246,0.18);
         }
 
-        .dock-icon:hover { transform: scale(1.18) translateY(-10px); box-shadow: 0 16px 40px rgba(59,130,246,0.4); }
+        .dock-icon:hover { transform: scale(1.2) translateY(-10px); }
         .dock-icon:active { transform: scale(0.9); }
 
         .dock-icon .material-icons {
-            font-size: 30px;
+            font-size: 28px;
             color: white;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
         }
 
-        body.light .dock-icon .material-icons { color: #3b82f6; }
+        body.light .dock-icon .material-icons { color: var(--accent-hex); }
 
-        /* HOME BUTTON - only visible inside app */
+        /* HOME BUTTON */
         .home-button {
             position: fixed;
-            bottom: 22px;
+            bottom: 24px;
             left: 50%;
             transform: translateX(-50%) scale(0);
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.16);
             backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 31000;
-            border: 2px solid rgba(255,255,255,0.35);
+            border: 2px solid rgba(255,255,255,0.3);
             box-shadow: 0 8px 28px rgba(0,0,0,0.3);
             transition: all 0.45s cubic-bezier(0.34,1.56,0.64,1);
             opacity: 0;
             pointer-events: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .home-button.visible {
@@ -309,49 +323,30 @@
 
         .home-button:hover {
             transform: translateX(-50%) scale(1.15);
-            box-shadow: 0 12px 40px rgba(59,130,246,0.5);
-            background: rgba(59,130,246,0.3);
+            background: rgba(var(--accent), 0.35);
         }
 
         .home-button:active { transform: translateX(-50%) scale(0.9); }
-
-        .home-button::before {
-            content: '';
-            position: absolute;
-            inset: -6px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .home-button:hover::before { opacity:1; animation: pulse 1.5s ease-in-out infinite; }
-
-        @keyframes pulse {
-            0%,100% { transform:scale(1); opacity:0.6; }
-            50% { transform:scale(1.3); opacity:0; }
-        }
 
         .home-button .material-icons { font-size: 20px; color: white; }
 
         /* CONTEXT MENU */
         .context-menu {
             position: fixed;
-            background: rgba(20,20,40,0.95);
-            backdrop-filter: blur(30px);
+            background: rgba(16,16,36,0.96);
+            backdrop-filter: blur(40px);
             border-radius: 28px;
-            padding: 12px;
+            padding: 10px;
             display: none;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             z-index: 10000;
             min-width: 210px;
             animation: menuAppear 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
 
-        body.light .context-menu { background: rgba(255,255,255,0.96); }
         .context-menu.show { display: flex; }
 
         @keyframes menuAppear {
@@ -360,374 +355,424 @@
         }
 
         .menu-item {
-            padding: 13px 18px;
+            padding: 12px 16px;
             border-radius: 18px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
             display: flex;
             align-items: center;
             gap: 12px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .menu-item:hover { background: rgba(59,130,246,0.25); transform: translateX(3px); }
-        .menu-item .material-icons { font-size: 20px; color: #3b82f6; }
+        .menu-item:hover { background: rgba(var(--accent), 0.2); }
+        .menu-item .material-icons { font-size: 19px; color: var(--accent-hex); }
 
         /* PANELS */
         .control-center, .settings-panel {
             position: fixed;
             top: 0;
-            right: -100%;
+            right: -110%;
             width: 100%;
             max-width: 380px;
             height: 100vh;
-            background: rgba(18,18,40,0.96);
-            backdrop-filter: blur(50px);
+            background: rgba(14,14,34,0.97);
+            backdrop-filter: blur(60px);
             z-index: 20000;
             transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
             overflow-y: auto;
-            border-left: 1px solid rgba(255,255,255,0.07);
-        }
-
-        body.light .control-center, body.light .settings-panel {
-            background: rgba(245,247,255,0.96);
+            border-left: 1px solid rgba(255,255,255,0.06);
         }
 
         .control-center.show, .settings-panel.show { right: 0; }
 
         .panel-header {
-            padding: 28px 22px 18px;
+            padding: 28px 22px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
-        .panel-header h2 { font-size: 1.7rem; font-weight: 700; }
+        .panel-header h2 { font-size: 1.6rem; font-weight: 700; }
 
         .close-btn {
-            width: 36px;
-            height: 36px;
+            width: 34px; height: 34px;
             border-radius: 50%;
-            background: rgba(59,130,246,0.18);
+            background: rgba(255,255,255,0.1);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .close-btn:hover { background: rgba(59,130,246,0.4); transform: rotate(90deg); }
-        .close-btn .material-icons { color: white; font-size: 20px; }
-        body.light .close-btn .material-icons { color: #3b82f6; }
+        .close-btn:hover { background: rgba(var(--accent),0.3); transform: rotate(90deg); }
+        .close-btn .material-icons { color: white; font-size: 18px; }
 
-        .panel-content { padding: 18px; }
+        .panel-content { padding: 16px; }
 
         .brightness-control {
-            background: rgba(59,130,246,0.12);
-            padding: 22px;
+            padding: 20px;
             border-radius: 26px;
-            margin-bottom: 18px;
-            border: 1px solid rgba(255,255,255,0.07);
+            margin-bottom: 14px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.05);
         }
 
         .brightness-slider {
             width: 100%;
-            height: 6px;
+            height: 5px;
             border-radius: 10px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.12);
             appearance: none;
             outline: none;
             cursor: pointer;
+            margin-top: 4px;
         }
 
         .brightness-slider::-webkit-slider-thumb {
             appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 22px; height: 22px;
             border-radius: 50%;
             background: white;
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* CONTROL TILES - ROUND + ADAPTIVE */
         .control-grid {
             display: grid;
             grid-template-columns: repeat(2,1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .control-tile {
-            background: rgba(59,130,246,0.13);
-            padding: 20px 16px;
-            border-radius: 26px;
+            padding: 18px 16px;
+            border-radius: 24px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            border: 1px solid rgba(255,255,255,0.07);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.06);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .control-tile:hover { transform: scale(1.04); }
-        .control-tile.active { background: rgba(59,130,246,0.45); border-color: rgba(59,130,246,0.5); }
+        .control-tile:hover { transform: scale(1.03); }
+        .control-tile.active { background: rgba(var(--accent),0.45); border-color: rgba(var(--accent),0.5); }
+        .control-tile .material-icons { font-size: 24px; }
+        .control-tile .label { font-weight: 600; font-size: 0.88rem; }
 
-        .control-tile .material-icons { font-size: 26px; }
-        .control-tile span.label { font-weight: 600; font-size: 0.9rem; }
-
-        /* SETTINGS */
-        .setting-group { margin-bottom: 26px; }
+        .setting-group { margin-bottom: 22px; }
 
         .setting-group-title {
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            opacity: 0.5;
-            margin-bottom: 12px;
+            opacity: 0.45;
+            margin-bottom: 10px;
             letter-spacing: 0.08em;
             padding-left: 4px;
         }
 
         .setting-item {
-            background: rgba(59,130,246,0.09);
-            padding: 18px;
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
             border-radius: 22px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.04);
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .setting-item:hover { background: rgba(59,130,246,0.18); }
-
-        .setting-info { display: flex; align-items: center; gap: 14px; }
-        .setting-info .material-icons { font-size: 22px; color: #3b82f6; }
-        .setting-label { font-weight: 600; font-size: 0.95rem; }
-        .setting-description { font-size: 0.82rem; opacity: 0.6; margin-top: 2px; }
+        .setting-item:hover { background: rgba(255,255,255,0.09); }
+        .setting-info { display: flex; align-items: center; gap: 13px; }
+        .setting-info .material-icons { font-size: 21px; color: var(--accent-hex); }
+        .setting-label { font-weight: 600; font-size: 0.93rem; }
+        .setting-description { font-size: 0.8rem; opacity: 0.55; margin-top: 2px; }
 
         .toggle-switch {
-            width: 48px;
-            height: 26px;
-            background: rgba(255,255,255,0.18);
+            width: 46px; height: 26px;
+            background: rgba(255,255,255,0.15);
             border-radius: 20px;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
             flex-shrink: 0;
         }
 
-        .toggle-switch.active { background: #3b82f6; }
+        .toggle-switch.active { background: var(--accent-hex); }
 
         .toggle-switch::after {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             background: white;
             border-radius: 50%;
-            top: 3px;
-            left: 3px;
+            top: 3px; left: 3px;
             transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        .toggle-switch.active::after { left: 25px; }
+        .toggle-switch.active::after { left: 23px; }
 
-        /* APP FULLSCREEN - SUCK IN ANIMATION */
+        /* APP FULLSCREEN - HyperOS 3 animation */
         .app-fullscreen {
             position: fixed;
             inset: 0;
-            background: rgba(10,10,26,0.98);
+            background: #0a0a18;
             z-index: 30000;
             display: none;
             flex-direction: column;
+            transform-origin: center center;
         }
-
-        body.light .app-fullscreen { background: rgba(248,249,255,0.98); }
 
         .app-fullscreen.show {
             display: flex;
-            animation: suckIn 0.55s cubic-bezier(0.34,1.56,0.64,1);
+            animation: hyperOpen 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
-        @keyframes suckIn {
-            from { opacity:0; transform: scale(1.28); }
-            to { opacity:1; transform: scale(1); }
+        .app-fullscreen.closing {
+            animation: hyperClose 0.38s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes hyperOpen {
+            0% {
+                opacity: 0;
+                transform: scale(0.88) translateY(30px);
+                border-radius: 40px;
+            }
+            60% {
+                opacity: 1;
+                border-radius: 20px;
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0px);
+                border-radius: 0px;
+            }
+        }
+
+        @keyframes hyperClose {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                border-radius: 0px;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.85) translateY(40px);
+                border-radius: 40px;
+            }
         }
 
         .app-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 12px;
         }
 
-        .app-title { font-size: 1.15rem; font-weight: 700; }
+        .app-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            flex: 1;
+        }
 
         .app-content {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            scrollbar-width: none;
         }
+
+        .app-content::-webkit-scrollbar { display: none; }
 
         /* CAMERA */
         #cam {
             width: 100%;
             max-width: 640px;
-            border-radius: 24px;
+            border-radius: 22px;
             background: #000;
+            display: block;
         }
 
         .camera-controls {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 16px;
+            margin-top: 14px;
         }
 
         .camera-btn {
-            padding: 14px 22px;
-            border-radius: 50px;
-            background: rgba(59,130,246,0.28);
-            border: 2px solid rgba(255,255,255,0.25);
+            padding: 12px 20px;
+            border-radius: 999px;
+            background: rgba(var(--accent), 0.25);
+            border: 1.5px solid rgba(255,255,255,0.2);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             font-weight: 600;
             color: white;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            font-size: 0.88rem;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .camera-btn:hover { background: rgba(59,130,246,0.5); transform: scale(1.05); }
-        .camera-btn .material-icons { font-size: 20px; }
+        .camera-btn:hover { background: rgba(var(--accent), 0.45); }
+        .camera-btn .material-icons { font-size: 18px; }
 
-        /* GALLERY */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        /* GALLERY - improved */
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .gallery-header h3 { font-size: 1.1rem; font-weight: 700; opacity: 0.9; }
+
+        .gallery-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 12px;
+            height: 200px;
+            opacity: 0.4;
+        }
+
+        .gallery-empty .material-icons { font-size: 48px; }
+        .gallery-empty p { font-size: 0.9rem; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
         }
 
         .gallery-item {
             position: relative;
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
-            background: rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.06);
+            aspect-ratio: 1;
+            cursor: pointer;
         }
 
         .gallery-item img, .gallery-item video {
             width: 100%;
-            height: 140px;
+            height: 100%;
             object-fit: cover;
         }
 
-        .gallery-item button {
+        .gallery-item-overlay {
             position: absolute;
-            top: 6px;
-            right: 6px;
-            background: rgba(220,50,50,0.85);
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.6));
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+        }
+
+        .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+
+        .gallery-del-btn {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(220,50,50,0.9);
             border: none;
             color: white;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
             cursor: pointer;
-            font-size: 0.75rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-left: auto;
+            -webkit-tap-highlight-color: transparent;
         }
+
+        .gallery-del-btn .material-icons { font-size: 14px; }
+
+        /* VIDEO BADGE */
+        .video-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 8px;
+            padding: 3px 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .video-badge .material-icons { font-size: 12px; }
 
         /* CALCULATOR */
         .calc-wrap {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            max-width: 340px;
+            gap: 14px;
+            max-width: 320px;
             margin: 0 auto;
         }
 
         .calc-display {
-            width: 100%;
-            background: rgba(0,0,0,0.3);
-            border-radius: 24px;
-            padding: 20px 24px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 26px;
+            padding: 18px 22px 16px;
             text-align: right;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
-        .calc-expr {
-            font-size: 0.9rem;
-            opacity: 0.5;
-            min-height: 20px;
-            margin-bottom: 6px;
-        }
-
-        .calc-result {
-            font-size: 2.8rem;
-            font-weight: 300;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .calc-expr { font-size: 0.88rem; opacity: 0.45; min-height: 18px; margin-bottom: 4px; word-break: break-all; }
+        .calc-result { font-size: 3rem; font-weight: 200; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .calc-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            width: 100%;
+            gap: 9px;
         }
 
         .calc-btn {
-            height: 68px;
+            height: 66px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 500;
-            transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+            transition: all 0.18s cubic-bezier(0.34,1.56,0.64,1);
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
-        .calc-btn:active { transform: scale(0.88); }
+        .calc-btn:active { transform: scale(0.87); filter: brightness(1.3); }
+        .calc-btn:hover { filter: brightness(1.15); }
 
-        .calc-btn.num {
-            background: rgba(80,80,120,0.6);
-            color: white;
-        }
-
-        .calc-btn.op {
-            background: rgba(59,130,246,0.7);
-            color: white;
-        }
-
-        .calc-btn.fn {
-            background: rgba(120,120,160,0.5);
-            color: white;
-            font-size: 1rem;
-        }
-
-        .calc-btn.eq {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .calc-btn.zero { border-radius: 34px; grid-column: span 2; justify-content: flex-start; padding-left: 26px; }
-
-        .calc-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
+        .calc-btn.num { background: rgba(80,80,110,0.55); color: white; }
+        .calc-btn.op { background: rgba(var(--accent), 0.65); color: white; }
+        .calc-btn.fn { background: rgba(110,110,140,0.45); color: white; font-size: 1rem; }
+        .calc-btn.eq { background: var(--accent-hex); color: white; }
+        .calc-btn.zero { border-radius: 33px; grid-column: span 2; justify-content: flex-start; padding-left: 24px; }
 
         /* MISC */
         #wallpaper-input, #media-picker { display: none; }
@@ -735,7 +780,7 @@
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.35);
             backdrop-filter: blur(4px);
             opacity: 0;
             pointer-events: none;
@@ -796,28 +841,28 @@
         </div>
         <div class="panel-content">
             <div class="brightness-control">
-                <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
-                    <span class="material-icons" id="cc-brightness-icon" style="color:#3b82f6;font-size:26px;">brightness_6</span>
-                    <span style="font-weight:600;">Brightness</span>
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                    <span class="material-icons ct-accent-icon" style="font-size:24px;">brightness_6</span>
+                    <span style="font-weight:600;font-size:0.95rem;">Brightness</span>
                 </div>
                 <input type="range" class="brightness-slider" id="brightness-slider" min="20" max="100" value="100" oninput="adjustBrightness(this.value)">
             </div>
             <div class="control-grid">
-                <div class="control-tile" id="ct-wifi" onclick="this.classList.toggle('active')">
-                    <span class="material-icons" id="ct-wifi-icon" style="color:#3b82f6;">wifi</span>
+                <div class="control-tile" onclick="this.classList.toggle('active')">
+                    <span class="material-icons ct-accent-icon">wifi</span>
                     <span class="label">WiFi</span>
                 </div>
-                <div class="control-tile" id="ct-bt" onclick="this.classList.toggle('active')">
-                    <span class="material-icons" id="ct-bt-icon" style="color:#3b82f6;">bluetooth</span>
+                <div class="control-tile" onclick="this.classList.toggle('active')">
+                    <span class="material-icons ct-accent-icon">bluetooth</span>
                     <span class="label">Bluetooth</span>
                 </div>
-                <div class="control-tile" id="ct-ap" onclick="this.classList.toggle('active')">
-                    <span class="material-icons" id="ct-ap-icon" style="color:#3b82f6;">flight</span>
+                <div class="control-tile" onclick="this.classList.toggle('active')">
+                    <span class="material-icons ct-accent-icon">flight</span>
                     <span class="label">Airplane</span>
                 </div>
-                <div class="control-tile" id="ct-dnd" onclick="this.classList.toggle('active')">
-                    <span class="material-icons" id="ct-dnd-icon" style="color:#3b82f6;">do_not_disturb</span>
-                    <span class="label">Do Not Disturb</span>
+                <div class="control-tile" onclick="this.classList.toggle('active')">
+                    <span class="material-icons ct-accent-icon">do_not_disturb</span>
+                    <span class="label">DND</span>
                 </div>
             </div>
         </div>
@@ -843,8 +888,8 @@
             <div class="setting-group">
                 <div class="setting-group-title">Display</div>
                 <div class="setting-item" onclick="document.getElementById('wallpaper-input').click()">
-                    <div class="setting-info"><span class="material-icons">wallpaper</span><div><div class="setting-label">Custom Wallpaper</div><div class="setting-description">Upload background</div></div></div>
-                    <span class="material-icons" style="color:#3b82f6;">chevron_right</span>
+                    <div class="setting-info"><span class="material-icons">wallpaper</span><div><div class="setting-label">Custom Wallpaper</div><div class="setting-description">Upload background image</div></div></div>
+                    <span class="material-icons" style="opacity:0.4;">chevron_right</span>
                 </div>
             </div>
             <div class="setting-group">
@@ -864,11 +909,12 @@
     </div>
 
     <div class="app-fullscreen" id="app-fullscreen">
-        <div class="app-header"><div class="app-title" id="app-title">App</div></div>
+        <div class="app-header">
+            <div class="app-title" id="app-title">App</div>
+        </div>
         <div class="app-content" id="app-content"></div>
     </div>
 
-    <!-- FOLDER MODAL -->
     <div class="folder-modal" id="folder-modal" onclick="closeFolderModal(event)">
         <div class="folder-modal-inner">
             <div class="folder-modal-title" id="folder-modal-title">Folder</div>
@@ -899,64 +945,74 @@
         let largeIconsEnabled=false,longPressTimer,permissions={camera:true};
         let stream,recorder,chunks=[];
         let folders=JSON.parse(localStorage.getItem('folders')||'[]');
-        let calcExpr='',calcDisplay='0';
+        let calcExpr='',calcResult='0';
+
+        // Global accent - NEVER hardcoded blue
+        let accentR=180,accentG=180,accentB=220;
+
+        function setAccent(r,g,b){
+            accentR=r; accentG=g; accentB=b;
+            document.documentElement.style.setProperty('--accent',`${r}, ${g}, ${b}`);
+            document.documentElement.style.setProperty('--accent-hex',`rgb(${r},${g},${b})`);
+        }
 
         function populateApps(){
             const grid=document.getElementById('app-grid');
             grid.innerHTML='';
-            // Render folders first
+            const appsInFolders=folders.flatMap(f=>f.apps);
+
             folders.forEach((folder,fi)=>{
                 const wrap=document.createElement('div');
-                wrap.className='app-icon folder-wrapper';
+                wrap.className='folder-wrapper';
                 wrap.onclick=()=>openFolder(fi);
-                const folderEl=document.createElement('div');
-                folderEl.className='folder-icon';
-                // Show up to 4 mini icons
+                const fIcon=document.createElement('div');
+                fIcon.className='folder-icon';
                 folder.apps.slice(0,4).forEach(appId=>{
                     const app=myApps.find(a=>a.id===appId);
                     if(app){
                         const mini=document.createElement('div');
                         mini.className='mini-icon';
                         mini.innerHTML=`<span class="material-icons">${app.icon}</span>`;
-                        folderEl.appendChild(mini);
+                        fIcon.appendChild(mini);
                     }
                 });
                 const name=document.createElement('div');
                 name.className='app-name';
                 name.textContent=folder.name;
-                wrap.appendChild(folderEl);
+                wrap.appendChild(fIcon);
                 wrap.appendChild(name);
                 grid.appendChild(wrap);
             });
-            // Then apps not in any folder
-            const appsInFolders=folders.flatMap(f=>f.apps);
+
             myApps.filter(app=>!appsInFolders.includes(app.id)).forEach((app,i)=>{
                 const el=document.createElement('div');
                 el.className='app-icon';
-                el.style.animationDelay=`${i*0.04}s`;
-                el.style.animation=`iconAppear 0.45s ease ${i*0.04}s both`;
+                el.style.animation=`iconAppear 0.45s cubic-bezier(0.34,1.56,0.64,1) ${i*0.04}s both`;
                 el.onclick=()=>openApp(app.id,app.name);
                 el.innerHTML=`<div class="icon"><span class="material-icons">${app.icon}</span></div><div class="app-name">${app.name}</div>`;
                 grid.appendChild(el);
             });
         }
 
+        // Add iconAppear keyframe
+        const styleEl=document.createElement('style');
+        styleEl.textContent=`@keyframes iconAppear { from{opacity:0;transform:scale(0.75) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)} }`;
+        document.head.appendChild(styleEl);
+
         // Long press
         const homeScreen=document.getElementById('home-screen');
-        homeScreen.addEventListener('touchstart',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e.touches[0]),500);});
-        homeScreen.addEventListener('touchend',()=>clearTimeout(longPressTimer));
-        homeScreen.addEventListener('touchmove',()=>clearTimeout(longPressTimer));
+        homeScreen.addEventListener('touchstart',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e.touches[0]),500);},{passive:true});
+        homeScreen.addEventListener('touchend',()=>clearTimeout(longPressTimer),{passive:true});
+        homeScreen.addEventListener('touchmove',()=>clearTimeout(longPressTimer),{passive:true});
         homeScreen.addEventListener('mousedown',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e),500);});
         homeScreen.addEventListener('mouseup',()=>clearTimeout(longPressTimer));
         homeScreen.addEventListener('mousemove',()=>clearTimeout(longPressTimer));
 
         function showContextMenu(touch){
-            const menu=document.getElementById('context-menu'),overlay=document.getElementById('overlay');
-            document.querySelectorAll('.app-icon').forEach(icon=>icon.classList.add('shake'));
-            menu.classList.add('show');
-            overlay.classList.add('show');
-            const x=touch.clientX||touch.pageX;
-            const y=touch.clientY||touch.pageY;
+            const menu=document.getElementById('context-menu'),ov=document.getElementById('overlay');
+            document.querySelectorAll('.app-icon,.folder-wrapper').forEach(el=>el.classList.add('shake'));
+            menu.classList.add('show'); ov.classList.add('show');
+            const x=touch.clientX||touch.pageX,y=touch.clientY||touch.pageY;
             menu.style.left=`${Math.min(x,window.innerWidth-230)}px`;
             menu.style.top=`${Math.min(y,window.innerHeight-200)}px`;
         }
@@ -967,14 +1023,11 @@
             if(!name)return;
             const available=myApps.filter(app=>!folders.flatMap(f=>f.apps).includes(app.id));
             const chosen=[];
-            available.forEach(app=>{
-                if(confirm(`Add ${app.name} to folder?`))chosen.push(app.id);
-            });
+            available.forEach(app=>{if(confirm(`Add ${app.name} to folder?`))chosen.push(app.id);});
             if(chosen.length<2){alert('Need at least 2 apps');return;}
             folders.push({name,apps:chosen});
             localStorage.setItem('folders',JSON.stringify(folders));
-            populateApps();
-            closeAll();
+            populateApps(); closeAll();
         }
 
         function openFolder(fi){
@@ -999,150 +1052,131 @@
                 document.getElementById('folder-modal').classList.remove('show');
         }
 
-        // HOME BUTTON
-        function setHomeButtonVisible(visible){
-            const btn=document.getElementById('home-button');
-            const dock=document.getElementById('dock');
-            if(visible){
-                btn.classList.add('visible');
-                dock.style.opacity='0';
-                dock.style.pointerEvents='none';
-                dock.style.transform='translateX(-50%) translateY(20px)';
-            }else{
-                btn.classList.remove('visible');
-                dock.style.opacity='';
-                dock.style.pointerEvents='';
-                dock.style.transform='';
-            }
+        // HOME BUTTON toggle
+        function setHomeButtonVisible(v){
+            document.getElementById('home-button').classList.toggle('visible',v);
+            document.getElementById('dock').classList.toggle('hidden',v);
         }
 
-        function goHome(){closeApp();}
+        function goHome(){
+            const app=document.getElementById('app-fullscreen');
+            app.classList.add('closing');
+            app.addEventListener('animationend',()=>{
+                app.classList.remove('show','closing');
+                setHomeButtonVisible(false);
+                if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+                if(recorder){recorder.stop();recorder=null;}
+            },{once:true});
+        }
 
-        // APPS
+        // OPEN APP - uses current accent color
         async function openApp(appId,appName){
             const fullscreen=document.getElementById('app-fullscreen');
-            const title=document.getElementById('app-title');
+            const titleEl=document.getElementById('app-title');
             const content=document.getElementById('app-content');
-            title.textContent=appName;
+
+            // App background uses accent
+            fullscreen.style.background=`rgb(${Math.max(accentR-40,0)},${Math.max(accentG-40,0)},${Math.max(accentB-20,0)})`;
+
+            titleEl.textContent=appName;
 
             if(appId==='camera'){
                 if(!permissions.camera){
-                    content.innerHTML='<p style="text-align:center;padding:40px;">Camera disabled in Settings</p>';
-                    fullscreen.classList.add('show');
-                    setHomeButtonVisible(true);
-                    return;
+                    content.innerHTML='<p style="padding:30px;opacity:0.6;">Camera disabled in Settings</p>';
+                    fullscreen.classList.add('show'); setHomeButtonVisible(true); return;
                 }
                 content.innerHTML=`
-                    <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;">
                         <video id="cam" autoplay playsinline></video>
                         <div class="camera-controls">
                             <button class="camera-btn" onclick="takePhoto()"><span class="material-icons">camera_alt</span>Photo</button>
-                            <button class="camera-btn" onclick="toggleVideo()"><span class="material-icons">videocam</span><span id="vbtn">Start Video</span></button>
-                            <button class="camera-btn" onclick="document.getElementById('media-picker').click()"><span class="material-icons">upload</span>Upload</button>
+                            <button class="camera-btn" onclick="toggleVideo()"><span class="material-icons">videocam</span><span id="vbtn">Record</span></button>
+                            <button class="camera-btn" onclick="document.getElementById('media-picker').click()"><span class="material-icons">upload</span>Import</button>
                         </div>
                     </div>`;
-                fullscreen.classList.add('show');
-                setHomeButtonVisible(true);
+                fullscreen.classList.add('show'); setHomeButtonVisible(true);
                 try{
                     stream=await navigator.mediaDevices.getUserMedia({video:true});
                     document.getElementById('cam').srcObject=stream;
-                }catch(e){
-                    content.innerHTML='<p style="text-align:center;padding:40px;">Camera access denied</p>';
-                }
+                }catch(e){content.innerHTML='<p style="padding:30px;opacity:0.6;">Camera access denied</p>';}
             }else if(appId==='gallery'){
-                content.innerHTML='<div id="gallery" class="gallery"></div>';
-                fullscreen.classList.add('show');
-                setHomeButtonVisible(true);
+                content.innerHTML='<div id="gallery-wrap"></div>';
+                fullscreen.classList.add('show'); setHomeButtonVisible(true);
                 renderGallery();
             }else if(appId==='calculator'){
                 renderCalculator(content);
-                fullscreen.classList.add('show');
-                setHomeButtonVisible(true);
+                fullscreen.classList.add('show'); setHomeButtonVisible(true);
             }else{
-                content.innerHTML=`<p style="padding:30px;opacity:0.6;">${appName} coming soon!</p>`;
-                fullscreen.classList.add('show');
-                setHomeButtonVisible(true);
+                content.innerHTML=`<p style="padding:30px;opacity:0.5;">${appName} coming soon</p>`;
+                fullscreen.classList.add('show'); setHomeButtonVisible(true);
             }
         }
 
         // CALCULATOR
         function renderCalculator(content){
+            calcExpr=''; calcResult='0';
             content.innerHTML=`
             <div class="calc-wrap">
                 <div class="calc-display">
-                    <div class="calc-expr" id="calc-expr"></div>
-                    <div class="calc-result" id="calc-result">0</div>
+                    <div class="calc-expr" id="ce"></div>
+                    <div class="calc-result" id="cr">0</div>
                 </div>
                 <div class="calc-buttons">
-                    <button class="calc-btn fn" onclick="calcFn('AC')">AC</button>
-                    <button class="calc-btn fn" onclick="calcFn('+/-')">+/-</button>
-                    <button class="calc-btn fn" onclick="calcFn('%')">%</button>
-                    <button class="calc-btn op" onclick="calcOp('/')">÷</button>
-
-                    <button class="calc-btn num" onclick="calcNum('7')">7</button>
-                    <button class="calc-btn num" onclick="calcNum('8')">8</button>
-                    <button class="calc-btn num" onclick="calcNum('9')">9</button>
-                    <button class="calc-btn op" onclick="calcOp('*')">×</button>
-
-                    <button class="calc-btn num" onclick="calcNum('4')">4</button>
-                    <button class="calc-btn num" onclick="calcNum('5')">5</button>
-                    <button class="calc-btn num" onclick="calcNum('6')">6</button>
-                    <button class="calc-btn op" onclick="calcOp('-')">−</button>
-
-                    <button class="calc-btn num" onclick="calcNum('1')">1</button>
-                    <button class="calc-btn num" onclick="calcNum('2')">2</button>
-                    <button class="calc-btn num" onclick="calcNum('3')">3</button>
-                    <button class="calc-btn op" onclick="calcOp('+')">+</button>
-
-                    <button class="calc-btn num zero" onclick="calcNum('0')">0</button>
-                    <button class="calc-btn num" onclick="calcNum('.')">.</button>
-                    <button class="calc-btn eq" onclick="calcEquals()">=</button>
+                    <button class="calc-btn fn" onclick="cFn('AC')">AC</button>
+                    <button class="calc-btn fn" onclick="cFn('+/-')">+/-</button>
+                    <button class="calc-btn fn" onclick="cFn('%')">%</button>
+                    <button class="calc-btn op" onclick="cOp('/')">÷</button>
+                    <button class="calc-btn num" onclick="cNum('7')">7</button>
+                    <button class="calc-btn num" onclick="cNum('8')">8</button>
+                    <button class="calc-btn num" onclick="cNum('9')">9</button>
+                    <button class="calc-btn op" onclick="cOp('*')">×</button>
+                    <button class="calc-btn num" onclick="cNum('4')">4</button>
+                    <button class="calc-btn num" onclick="cNum('5')">5</button>
+                    <button class="calc-btn num" onclick="cNum('6')">6</button>
+                    <button class="calc-btn op" onclick="cOp('-')">−</button>
+                    <button class="calc-btn num" onclick="cNum('1')">1</button>
+                    <button class="calc-btn num" onclick="cNum('2')">2</button>
+                    <button class="calc-btn num" onclick="cNum('3')">3</button>
+                    <button class="calc-btn op" onclick="cOp('+')">+</button>
+                    <button class="calc-btn num zero" onclick="cNum('0')">0</button>
+                    <button class="calc-btn num" onclick="cNum('.')">.</button>
+                    <button class="calc-btn eq" onclick="cEq()">=</button>
                 </div>
             </div>`;
-            calcExpr='';calcDisplay='0';
         }
 
-        function calcNum(n){
-            if(calcDisplay==='0'&&n!=='.')calcDisplay=n;
-            else calcDisplay+=n;
-            document.getElementById('calc-result').textContent=calcDisplay;
+        function cNum(n){
+            if(calcResult==='0'&&n!=='.')calcResult=n;
+            else calcResult+=n;
+            document.getElementById('cr').textContent=calcResult;
         }
-
-        function calcOp(op){
-            calcExpr+=calcDisplay+op;
-            calcDisplay='0';
-            document.getElementById('calc-expr').textContent=calcExpr;
-            document.getElementById('calc-result').textContent='0';
+        function cOp(op){
+            calcExpr+=calcResult+op; calcResult='0';
+            document.getElementById('ce').textContent=calcExpr;
+            document.getElementById('cr').textContent='0';
         }
-
-        function calcEquals(){
+        function cEq(){
             try{
-                const expr=calcExpr+calcDisplay;
-                const result=Function('"use strict";return ('+expr+')')();
-                document.getElementById('calc-expr').textContent=expr+' =';
-                const r=parseFloat(result.toFixed(10)).toString();
-                document.getElementById('calc-result').textContent=r;
-                calcDisplay=r;calcExpr='';
-            }catch(e){
-                document.getElementById('calc-result').textContent='Error';
-                calcDisplay='0';calcExpr='';
-            }
+                const expr=calcExpr+calcResult;
+                const res=Function('"use strict";return('+expr+')')();
+                document.getElementById('ce').textContent=expr+' =';
+                const r=parseFloat(res.toFixed(10)).toString();
+                document.getElementById('cr').textContent=r;
+                calcResult=r; calcExpr='';
+            }catch(e){document.getElementById('cr').textContent='Error';calcResult='0';calcExpr='';}
         }
-
-        function calcFn(fn){
-            if(fn==='AC'){calcDisplay='0';calcExpr='';document.getElementById('calc-expr').textContent='';document.getElementById('calc-result').textContent='0';}
-            else if(fn==='+/-'){calcDisplay=String(-parseFloat(calcDisplay));document.getElementById('calc-result').textContent=calcDisplay;}
-            else if(fn==='%'){calcDisplay=String(parseFloat(calcDisplay)/100);document.getElementById('calc-result').textContent=calcDisplay;}
+        function cFn(fn){
+            if(fn==='AC'){calcResult='0';calcExpr='';document.getElementById('ce').textContent='';document.getElementById('cr').textContent='0';}
+            else if(fn==='+/-'){calcResult=String(-parseFloat(calcResult));document.getElementById('cr').textContent=calcResult;}
+            else if(fn==='%'){calcResult=String(parseFloat(calcResult)/100);document.getElementById('cr').textContent=calcResult;}
         }
 
         // CAMERA FUNCTIONS
         function takePhoto(){
-            let cam=document.getElementById('cam');if(!cam)return;
-            let canvas=document.createElement('canvas');
-            canvas.width=640;canvas.height=480;
-            canvas.getContext('2d').drawImage(cam,0,0,640,480);
-            saveMedia('image',canvas.toDataURL());
-            alert('Photo saved!');
+            const cam=document.getElementById('cam');if(!cam)return;
+            const c=document.createElement('canvas');c.width=640;c.height=480;
+            c.getContext('2d').drawImage(cam,0,0,640,480);
+            saveMedia('image',c.toDataURL()); alert('Photo saved!');
         }
 
         function toggleVideo(){
@@ -1150,59 +1184,82 @@
                 recorder=new MediaRecorder(stream);
                 recorder.ondataavailable=e=>chunks.push(e.data);
                 recorder.onstop=()=>{
-                    let blob=new Blob(chunks,{type:'video/webm'});
+                    const blob=new Blob(chunks,{type:'video/webm'});
                     saveMedia('video',URL.createObjectURL(blob));
-                    chunks=[];alert('Video saved!');
+                    chunks=[]; alert('Video saved!');
                 };
                 recorder.start();
-                document.getElementById('vbtn').textContent='Stop Video';
+                document.getElementById('vbtn').textContent='Stop';
             }else{
-                recorder.stop();recorder=null;
-                document.getElementById('vbtn').textContent='Start Video';
+                recorder.stop(); recorder=null;
+                document.getElementById('vbtn').textContent='Record';
             }
         }
 
         function saveMedia(type,data){
-            let items=JSON.parse(localStorage.media||'[]');
-            items.push({type,data});
+            const items=JSON.parse(localStorage.media||'[]');
+            items.push({type,data,date:Date.now()});
             localStorage.media=JSON.stringify(items);
         }
 
         function renderGallery(){
-            let gallery=document.getElementById('gallery');if(!gallery)return;
-            gallery.innerHTML='';
-            let items=JSON.parse(localStorage.media||'[]');
-            items.forEach((i,idx)=>{
-                let c=document.createElement('div');c.className='gallery-item';
-                let el=i.type=='image'?document.createElement('img'):document.createElement('video');
-                el.src=i.data;el.controls=i.type=='video';
-                let del=document.createElement('button');del.innerHTML='&times;';
-                del.onclick=()=>{items.splice(idx,1);localStorage.media=JSON.stringify(items);renderGallery();};
-                c.appendChild(el);c.appendChild(del);gallery.appendChild(c);
+            const wrap=document.getElementById('gallery-wrap');
+            if(!wrap)return;
+            const items=JSON.parse(localStorage.media||'[]');
+            if(items.length===0){
+                wrap.innerHTML=`<div class="gallery-empty"><span class="material-icons">photo_library</span><p>No media yet</p></div>`;
+                return;
+            }
+            wrap.innerHTML=`
+                <div class="gallery-header">
+                    <h3>Gallery</h3>
+                    <span style="opacity:0.45;font-size:0.85rem;">${items.length} item${items.length!==1?'s':''}</span>
+                </div>
+                <div class="gallery-grid" id="gallery-grid"></div>`;
+            const grid=document.getElementById('gallery-grid');
+            items.forEach((item,idx)=>{
+                const c=document.createElement('div');
+                c.className='gallery-item';
+                if(item.type==='image'){
+                    c.innerHTML=`
+                        <img src="${item.data}" loading="lazy">
+                        <div class="gallery-item-overlay">
+                            <button class="gallery-del-btn" onclick="deleteMedia(${idx})"><span class="material-icons">delete</span></button>
+                        </div>`;
+                }else{
+                    c.innerHTML=`
+                        <video src="${item.data}"></video>
+                        <div class="video-badge"><span class="material-icons">videocam</span>VID</div>
+                        <div class="gallery-item-overlay">
+                            <button class="gallery-del-btn" onclick="deleteMedia(${idx})"><span class="material-icons">delete</span></button>
+                        </div>`;
+                }
+                grid.appendChild(c);
             });
         }
 
-        document.getElementById('media-picker').onchange=e=>{
-            [...e.target.files].forEach(f=>{saveMedia(f.type.startsWith('video')?'video':'image',URL.createObjectURL(f));});
-            alert('Media uploaded!');
-        };
-
-        function closeApp(){
-            if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
-            if(recorder){recorder.stop();recorder=null;}
-            document.getElementById('app-fullscreen').classList.remove('show');
-            setHomeButtonVisible(false);
+        function deleteMedia(idx){
+            const items=JSON.parse(localStorage.media||'[]');
+            items.splice(idx,1);
+            localStorage.media=JSON.stringify(items);
+            renderGallery();
         }
 
+        document.getElementById('media-picker').onchange=e=>{
+            [...e.target.files].forEach(f=>{
+                saveMedia(f.type.startsWith('video')?'video':'image',URL.createObjectURL(f));
+            });
+            alert('Imported!');
+        };
+
         function toggleControlCenter(){
-            const cc=document.getElementById('control-center'),overlay=document.getElementById('overlay');
-            if(cc.classList.contains('show')){cc.classList.remove('show');overlay.classList.remove('show');}
-            else{closeAll();cc.classList.add('show');overlay.classList.add('show');}
+            const cc=document.getElementById('control-center'),ov=document.getElementById('overlay');
+            if(cc.classList.contains('show')){cc.classList.remove('show');ov.classList.remove('show');}
+            else{closeAll();cc.classList.add('show');ov.classList.add('show');}
         }
 
         function adjustBrightness(v){
-            const ov=document.getElementById('brightness-overlay');
-            ov.style.opacity=((100-v)/80)*0.6;
+            document.getElementById('brightness-overlay').style.opacity=((100-v)/80)*0.6;
             localStorage.setItem('brightness',v);
         }
 
@@ -1210,106 +1267,122 @@
         function closeSettings(){document.getElementById('settings-panel').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
 
         function toggleIconSize(){
-            const body=document.body,toggle=document.getElementById('icon-size-toggle'),text=document.getElementById('icon-size-text');
+            const b=document.body,toggle=document.getElementById('icon-size-toggle'),text=document.getElementById('icon-size-text');
             largeIconsEnabled=!largeIconsEnabled;
-            if(largeIconsEnabled){body.classList.add('large-icons');toggle.classList.add('active');if(text)text.textContent='Normal Icons';}
-            else{body.classList.remove('large-icons');toggle.classList.remove('active');if(text)text.textContent='Large Icons';}
-            localStorage.setItem('largeIcons',largeIconsEnabled);closeAll();
+            b.classList.toggle('large-icons',largeIconsEnabled);
+            toggle.classList.toggle('active',largeIconsEnabled);
+            if(text)text.textContent=largeIconsEnabled?'Normal Icons':'Large Icons';
+            localStorage.setItem('largeIcons',largeIconsEnabled);
+            closeAll();
         }
 
         function toggleTheme(){
-            const body=document.body,toggle=document.getElementById('theme-toggle');
-            if(body.classList.contains('dark')){body.classList.remove('dark');body.classList.add('light');toggle.classList.remove('active');localStorage.setItem('theme','light');}
-            else{body.classList.remove('light');body.classList.add('dark');toggle.classList.add('active');localStorage.setItem('theme','dark');}
+            const b=document.body,t=document.getElementById('theme-toggle');
+            const goLight=b.classList.contains('dark');
+            b.classList.toggle('dark',!goLight);
+            b.classList.toggle('light',goLight);
+            t.classList.toggle('active',!goLight);
+            localStorage.setItem('theme',goLight?'light':'dark');
             setTimeout(updateAdaptiveColors,50);
         }
 
         function togglePrivacy(item,type){
-            const toggle=item.querySelector('.toggle-switch');
             permissions[type]=!permissions[type];
-            toggle.classList.toggle('active');
+            item.querySelector('.toggle-switch').classList.toggle('active',permissions[type]);
             localStorage.setItem('permissions',JSON.stringify(permissions));
         }
 
-        // ADAPTIVE COLORS - icons, dock, panels, control tiles ALL adapt
+        // ---- CORE: FULL ADAPTIVE COLORS ----
+        // Extract RGB from wallpaper, apply EVERYWHERE with NO fallback to hardcoded blue
         function updateAdaptiveColors(){
             const body=document.body;
             if(body.classList.contains('custom-wallpaper')){
-                const url=body.style.getPropertyValue('--custom-wallpaper').replace(/url\(['"]?(.+?)['"]?\)/,'$1');
+                const urlVal=body.style.getPropertyValue('--custom-wallpaper');
+                const url=urlVal.replace(/url\(['"]?(.+?)['"]?\)/,'$1');
+                if(!url){applySystemColors();return;}
                 const img=new Image();
                 img.crossOrigin='Anonymous';
                 img.onload=function(){
-                    const canvas=document.createElement('canvas');
-                    const ctx=canvas.getContext('2d');
-                    canvas.width=100;canvas.height=100;
-                    ctx.drawImage(img,0,0,100,100);
                     try{
-                        const data=ctx.getImageData(0,0,100,100).data;
+                        const c=document.createElement('canvas');
+                        const ctx=c.getContext('2d');
+                        c.width=80; c.height=80;
+                        ctx.drawImage(img,0,0,80,80);
+                        const data=ctx.getImageData(0,0,80,80).data;
                         let r=0,g=0,b=0;
-                        for(let i=0;i<data.length;i+=4){r+=data[i];g+=data[i+1];b+=data[i+2];}
                         const px=data.length/4;
-                        r=Math.floor(r/px);g=Math.floor(g/px);b=Math.floor(b/px);
-                        applyColors(r,g,b);
-                    }catch(e){applyDefaultColors();}
+                        for(let i=0;i<data.length;i+=4){r+=data[i];g+=data[i+1];b+=data[i+2];}
+                        r=Math.round(r/px); g=Math.round(g/px); b=Math.round(b/px);
+
+                        // Boost saturation so accent is vivid, not grey
+                        const max=Math.max(r,g,b),min=Math.min(r,g,b);
+                        const sat=(max-min)/(max||1);
+                        // If image is too grey/white, desaturate gracefully
+                        if(sat<0.08){
+                            // Use a tinted version of the dominant channel
+                            const boost=60;
+                            if(r>=g&&r>=b){setAccent(Math.min(r+boost,255),Math.max(g-20,0),Math.max(b-20,0));}
+                            else if(g>=r&&g>=b){setAccent(Math.max(r-20,0),Math.min(g+boost,255),Math.max(b-20,0));}
+                            else{setAccent(Math.max(r-20,0),Math.max(g-20,0),Math.min(b+boost,255));}
+                        }else{
+                            setAccent(r,g,b);
+                        }
+                        applyEverything();
+                    }catch(e){applySystemColors();}
                 };
-                img.onerror=()=>applyDefaultColors();
+                img.onerror=()=>applySystemColors();
                 img.src=url;
             }else{
-                applyDefaultColors();
+                applySystemColors();
             }
         }
 
-        function applyDefaultColors(){
+        function applySystemColors(){
             const isDark=document.body.classList.contains('dark');
-            if(isDark) applyColors(59,130,246);
-            else applyColors(180,210,241);
+            if(isDark) setAccent(130,140,200);
+            else setAccent(100,140,210);
+            applyEverything();
         }
 
-        function applyColors(r,g,b){
-            const iconBg=`rgba(${r},${g},${b},0.32)`;
-            const iconBorder=`rgba(${r},${g},${b},0.45)`;
-            const panelBg=`rgba(${Math.max(r-30,0)},${Math.max(g-30,0)},${Math.min(b+20,255)},0.97)`;
-            const tileBg=`rgba(${r},${g},${b},0.18)`;
-            const tileActiveBg=`rgba(${r},${g},${b},0.55)`;
-            const accentColor=`rgb(${r},${g},${b})`;
+        function applyEverything(){
+            const r=accentR,g=accentG,b=accentB;
+            const iconBg=`rgba(${r},${g},${b},0.3)`;
+            const iconBorder=`rgba(${r},${g},${b},0.4)`;
+            const panelBg=`rgba(${Math.max(r-40,8)},${Math.max(g-40,8)},${Math.max(b-20,12)},0.97)`;
+            const tileBg=`rgba(${r},${g},${b},0.14)`;
+            const appBg=`rgb(${Math.max(r-50,5)},${Math.max(g-50,5)},${Math.max(b-30,8)})`;
 
-            // Icons + dock
-            document.querySelectorAll('.icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
+            // Icons
+            document.querySelectorAll('.icon,.folder-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
+            // Dock icons
             document.querySelectorAll('.dock-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
-            document.querySelectorAll('.folder-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
-
-            // Panels background
-            document.querySelectorAll('.control-center, .settings-panel, .context-menu').forEach(el=>{
-                el.style.background=panelBg;
-            });
-
+            // Panels
+            document.querySelectorAll('.control-center,.settings-panel,.context-menu').forEach(el=>{el.style.background=panelBg;});
             // Control tiles
-            document.querySelectorAll('.control-tile').forEach(el=>{
-                el.style.background=tileBg;
-                el.style.borderColor=iconBorder;
-            });
-            document.querySelectorAll('.control-tile.active').forEach(el=>{
-                el.style.background=tileActiveBg;
-            });
-
-            // Control tile icons color
-            document.querySelectorAll('.control-tile .material-icons, #cc-brightness-icon').forEach(el=>{
-                el.style.color=accentColor;
-            });
+            document.querySelectorAll('.control-tile').forEach(el=>{if(!el.classList.contains('active'))el.style.background=tileBg;});
+            // Control tile icons + brightness icon
+            document.querySelectorAll('.ct-accent-icon').forEach(el=>{el.style.color=`rgb(${r},${g},${b})`;});
+            // Setting icons
+            document.querySelectorAll('.setting-info .material-icons').forEach(el=>{el.style.color=`rgb(${r},${g},${b})`;});
+            // App background
+            const app=document.getElementById('app-fullscreen');
+            if(!app.classList.contains('show')) app.style.background=appBg;
+            // Toggle active color
+            document.documentElement.style.setProperty('--accent-hex',`rgb(${r},${g},${b})`);
         }
 
         function loadCustomWallpaper(input){
             const file=input.files[0];
-            if(file){
-                const reader=new FileReader();
-                reader.onload=e=>{
-                    document.body.style.setProperty('--custom-wallpaper',`url(${e.target.result})`);
-                    document.body.classList.add('custom-wallpaper');
-                    localStorage.setItem('customWallpaper',e.target.result);
-                    setTimeout(updateAdaptiveColors,200);
-                };
-                reader.readAsDataURL(file);
-            }
+            if(!file)return;
+            const reader=new FileReader();
+            reader.onload=e=>{
+                const dataUrl=e.target.result;
+                document.body.style.setProperty('--custom-wallpaper',`url('${dataUrl}')`);
+                document.body.classList.add('custom-wallpaper');
+                localStorage.setItem('customWallpaper',dataUrl);
+                setTimeout(updateAdaptiveColors,150);
+            };
+            reader.readAsDataURL(file);
         }
 
         function closeAll(){
@@ -1317,7 +1390,7 @@
             document.getElementById('settings-panel').classList.remove('show');
             document.getElementById('context-menu').classList.remove('show');
             document.getElementById('overlay').classList.remove('show');
-            document.querySelectorAll('.app-icon').forEach(icon=>icon.classList.remove('shake'));
+            document.querySelectorAll('.app-icon,.folder-wrapper').forEach(el=>el.classList.remove('shake'));
         }
 
         function updateTime(){
@@ -1330,22 +1403,21 @@
         updateTime();
         setInterval(updateTime,1000);
 
-        const savedTheme=localStorage.getItem('theme');
-        if(savedTheme==='light'){document.body.classList.remove('dark');document.body.classList.add('light');document.getElementById('theme-toggle').classList.remove('active');}
+        if(localStorage.getItem('theme')==='light'){document.body.classList.replace('dark','light');document.getElementById('theme-toggle').classList.remove('active');}
+        if(localStorage.getItem('largeIcons')==='true'){largeIconsEnabled=true;document.body.classList.add('large-icons');document.getElementById('icon-size-toggle').classList.add('active');}
+        const savedBr=localStorage.getItem('brightness');if(savedBr){document.getElementById('brightness-slider').value=savedBr;adjustBrightness(savedBr);}
 
-        const savedIconSize=localStorage.getItem('largeIcons');
-        if(savedIconSize==='true'){largeIconsEnabled=true;document.body.classList.add('large-icons');document.getElementById('icon-size-toggle').classList.add('active');}
+        const savedWall=localStorage.getItem('customWallpaper');
+        if(savedWall){
+            document.body.style.setProperty('--custom-wallpaper',`url('${savedWall}')`);
+            document.body.classList.add('custom-wallpaper');
+            setTimeout(updateAdaptiveColors,300);
+        }else{
+            updateAdaptiveColors();
+        }
 
-        const savedBrightness=localStorage.getItem('brightness');
-        if(savedBrightness){document.getElementById('brightness-slider').value=savedBrightness;adjustBrightness(savedBrightness);}
-
-        const savedWallpaper=localStorage.getItem('customWallpaper');
-        if(savedWallpaper){document.body.style.setProperty('--custom-wallpaper',`url(${savedWallpaper})`);document.body.classList.add('custom-wallpaper');setTimeout(updateAdaptiveColors,300);}
-
-        const savedPermissions=localStorage.getItem('permissions');
-        if(savedPermissions){permissions=JSON.parse(savedPermissions);if(!permissions.camera)document.getElementById('camera-toggle').classList.remove('active');}
-
-        updateAdaptiveColors();
+        const savedPerm=localStorage.getItem('permissions');
+        if(savedPerm){permissions=JSON.parse(savedPerm);if(!permissions.camera)document.getElementById('camera-toggle').classList.remove('active');}
 
         window.addEventListener('load',()=>{
             setTimeout(()=>{
@@ -1354,7 +1426,7 @@
                     catch(e){}
                 }
                 updateAdaptiveColors();
-            },1000);
+            },800);
         });
     </script>
 </body>
