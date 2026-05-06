@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SerenityOS</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@latest/dist/liquidGL.min.js" defer></script>
     <style>
         * {
             margin: 0; padding: 0; box-sizing: border-box;
@@ -15,12 +13,12 @@
             tap-highlight-color: transparent;
             outline: none;
         }
-
+ 
         :root {
             --accent: 59, 130, 246;
             --accent-hex: #3b82f6;
         }
-
+ 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             color: white;
@@ -29,7 +27,7 @@
             position: relative;
             background: #0f0f1a;
         }
-
+ 
         body::before {
             content: '';
             position: fixed;
@@ -40,11 +38,11 @@
             z-index: -1;
             transition: opacity 0.5s ease;
         }
-
+ 
         body.light::before { background: linear-gradient(135deg, #e8f4ff 0%, #b8d4f1 50%, #9ec5e8 100%); }
         body.custom-wallpaper::before { background-image: var(--custom-wallpaper); }
         body.light { color: #1a1a3e; }
-
+ 
         /* STATUS BAR */
         .status-bar {
             display: flex;
@@ -54,11 +52,11 @@
             z-index: 100;
             position: relative;
         }
-
+ 
         .time { font-size: 0.9rem; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .status-icons { display: flex; gap: 14px; align-items: center; }
         .status-icons .material-icons { font-size: 17px; cursor: pointer; opacity: 0.9; }
-
+ 
         /* HOME SCREEN */
         .home-screen {
             padding: 28px 20px 130px;
@@ -67,7 +65,7 @@
             scrollbar-width: none;
         }
         .home-screen::-webkit-scrollbar { display: none; }
-
+ 
         .app-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -75,7 +73,7 @@
             max-width: 800px;
             margin: 0 auto;
         }
-
+ 
         /* ICONS */
         .app-icon {
             display: flex;
@@ -86,15 +84,15 @@
             transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .app-icon.shake { animation: shake 0.5s ease-in-out infinite; }
-
+ 
         @keyframes shake {
             0%,100% { transform: rotate(0deg); }
             25% { transform: rotate(-2.5deg); }
             75% { transform: rotate(2.5deg); }
         }
-
+ 
         .icon {
             width: 70px;
             height: 70px;
@@ -110,16 +108,16 @@
             position: relative;
             overflow: hidden;
         }
-
+ 
         body.light .icon {
             background: rgba(255,255,255,0.55);
             border: 1.5px solid rgba(var(--accent),0.2);
         }
-
+ 
         body.large-icons .icon { width: 86px; height: 86px; }
         body.large-icons .icon .material-icons { font-size: 44px; }
         body.large-icons .app-name { opacity:0; height:0; margin:0; overflow:hidden; }
-
+ 
         .icon .material-icons {
             font-size: 33px;
             color: white;
@@ -127,16 +125,16 @@
             position: relative;
             z-index: 1;
         }
-
+ 
         body.light .icon .material-icons { color: var(--accent-hex); }
-
+ 
         .app-icon:hover .icon {
             transform: scale(1.1) translateY(-4px);
             box-shadow: 0 14px 36px rgba(0,0,0,0.3);
         }
-
+ 
         .app-icon:active .icon { transform: scale(0.88); }
-
+ 
         .app-name {
             font-size: 0.78rem;
             text-align: center;
@@ -147,9 +145,9 @@
             font-weight: 600;
             text-shadow: 0 1px 5px rgba(0,0,0,0.7);
         }
-
+ 
         body.light .app-name { text-shadow: none; color: #1a1a3e; }
-
+ 
         /* FOLDER */
         .folder-wrapper {
             display: flex;
@@ -159,7 +157,7 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .folder-icon {
             width: 70px;
             height: 70px;
@@ -174,10 +172,10 @@
             border: 1.5px solid rgba(255,255,255,0.18);
             transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
         }
-
+ 
         .folder-wrapper:hover .folder-icon { transform: scale(1.1) translateY(-4px); }
         .folder-wrapper:active .folder-icon { transform: scale(0.88); }
-
+ 
         .mini-icon {
             border-radius: 50%;
             background: rgba(255,255,255,0.25);
@@ -185,9 +183,9 @@
             align-items: center;
             justify-content: center;
         }
-
+ 
         .mini-icon .material-icons { font-size: 10px; color: white; }
-
+ 
         /* FOLDER MODAL */
         .folder-modal {
             position: fixed;
@@ -202,9 +200,9 @@
             pointer-events: none;
             transition: opacity 0.3s ease;
         }
-
+ 
         .folder-modal.show { opacity: 1; pointer-events: all; }
-
+ 
         .folder-modal-inner {
             background: rgba(var(--accent), 0.15);
             backdrop-filter: blur(50px);
@@ -215,12 +213,12 @@
             box-shadow: 0 30px 80px rgba(0,0,0,0.4);
             animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
         }
-
+ 
         @keyframes popIn {
             from { opacity:0; transform: scale(0.7); }
             to { opacity:1; transform: scale(1); }
         }
-
+ 
         .folder-modal-title {
             text-align: center;
             font-weight: 700;
@@ -228,13 +226,13 @@
             margin-bottom: 20px;
             opacity: 0.8;
         }
-
+ 
         .folder-modal-grid {
             display: grid;
             grid-template-columns: repeat(3,1fr);
             gap: 16px;
         }
-
+ 
         /* DOCK */
         .dock {
             position: fixed;
@@ -251,18 +249,18 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.07);
             transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
         }
-
+ 
         body.light .dock {
             background: rgba(255,255,255,0.22);
             box-shadow: 0 20px 60px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.5);
         }
-
+ 
         .dock.hidden {
             opacity: 0;
             pointer-events: none;
             transform: translateX(-50%) translateY(20px);
         }
-
+ 
         .dock-icon {
             width: 56px;
             height: 56px;
@@ -276,21 +274,21 @@
             border: 1.5px solid rgba(255,255,255,0.1);
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         body.light .dock-icon {
             background: rgba(255,255,255,0.5);
         }
-
+ 
         .dock-icon:hover { transform: scale(1.2) translateY(-10px); }
         .dock-icon:active { transform: scale(0.9); }
-
+ 
         .dock-icon .material-icons {
             font-size: 28px;
             color: white;
         }
-
+ 
         body.light .dock-icon .material-icons { color: var(--accent-hex); }
-
+ 
         /* HOME BUTTON */
         .home-button {
             position: fixed;
@@ -314,22 +312,22 @@
             pointer-events: none;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .home-button.visible {
             transform: translateX(-50%) scale(1);
             opacity: 1;
             pointer-events: all;
         }
-
+ 
         .home-button:hover {
             transform: translateX(-50%) scale(1.15);
             background: rgba(var(--accent), 0.35);
         }
-
+ 
         .home-button:active { transform: translateX(-50%) scale(0.9); }
-
+ 
         .home-button .material-icons { font-size: 20px; color: white; }
-
+ 
         /* CONTEXT MENU */
         .context-menu {
             position: fixed;
@@ -346,14 +344,14 @@
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-
+ 
         .context-menu.show { display: flex; }
-
+ 
         @keyframes menuAppear {
             from { opacity:0; transform: scale(0.8) translateY(10px); }
             to { opacity:1; transform: scale(1) translateY(0); }
         }
-
+ 
         .menu-item {
             padding: 12px 16px;
             border-radius: 18px;
@@ -366,10 +364,10 @@
             font-size: 0.92rem;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .menu-item:hover { background: rgba(var(--accent), 0.2); }
         .menu-item .material-icons { font-size: 19px; color: var(--accent-hex); }
-
+ 
         /* PANELS */
         .control-center, .settings-panel {
             position: fixed;
@@ -385,9 +383,9 @@
             overflow-y: auto;
             border-left: 1px solid rgba(255,255,255,0.06);
         }
-
+ 
         .control-center.show, .settings-panel.show { right: 0; }
-
+ 
         .panel-header {
             padding: 28px 22px 16px;
             display: flex;
@@ -395,9 +393,9 @@
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-
+ 
         .panel-header h2 { font-size: 1.6rem; font-weight: 700; }
-
+ 
         .close-btn {
             width: 34px; height: 34px;
             border-radius: 50%;
@@ -410,12 +408,12 @@
             transition: all 0.3s ease;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .close-btn:hover { background: rgba(var(--accent),0.3); transform: rotate(90deg); }
         .close-btn .material-icons { color: white; font-size: 18px; }
-
+ 
         .panel-content { padding: 16px; }
-
+ 
         .brightness-control {
             padding: 20px;
             border-radius: 26px;
@@ -423,7 +421,7 @@
             border: 1px solid rgba(255,255,255,0.06);
             background: rgba(255,255,255,0.05);
         }
-
+ 
         .brightness-slider {
             width: 100%;
             height: 5px;
@@ -434,7 +432,7 @@
             cursor: pointer;
             margin-top: 4px;
         }
-
+ 
         .brightness-slider::-webkit-slider-thumb {
             appearance: none;
             width: 22px; height: 22px;
@@ -443,13 +441,13 @@
             cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-
+ 
         .control-grid {
             display: grid;
             grid-template-columns: repeat(2,1fr);
             gap: 10px;
         }
-
+ 
         .control-tile {
             padding: 18px 16px;
             border-radius: 24px;
@@ -462,14 +460,14 @@
             gap: 6px;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .control-tile:hover { transform: scale(1.03); }
         .control-tile.active { background: rgba(var(--accent),0.45); border-color: rgba(var(--accent),0.5); }
         .control-tile .material-icons { font-size: 24px; }
         .control-tile .label { font-weight: 600; font-size: 0.88rem; }
-
+ 
         .setting-group { margin-bottom: 22px; }
-
+ 
         .setting-group-title {
             font-size: 0.75rem;
             font-weight: 700;
@@ -479,7 +477,7 @@
             letter-spacing: 0.08em;
             padding-left: 4px;
         }
-
+ 
         .setting-item {
             background: rgba(255,255,255,0.05);
             padding: 16px;
@@ -493,13 +491,13 @@
             border: 1px solid rgba(255,255,255,0.04);
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .setting-item:hover { background: rgba(255,255,255,0.09); }
         .setting-info { display: flex; align-items: center; gap: 13px; }
         .setting-info .material-icons { font-size: 21px; color: var(--accent-hex); }
         .setting-label { font-weight: 600; font-size: 0.93rem; }
         .setting-description { font-size: 0.8rem; opacity: 0.55; margin-top: 2px; }
-
+ 
         .toggle-switch {
             width: 46px; height: 26px;
             background: rgba(255,255,255,0.15);
@@ -509,9 +507,9 @@
             transition: background 0.3s ease;
             flex-shrink: 0;
         }
-
+ 
         .toggle-switch.active { background: var(--accent-hex); }
-
+ 
         .toggle-switch::after {
             content: '';
             position: absolute;
@@ -522,9 +520,9 @@
             transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-
+ 
         .toggle-switch.active::after { left: 23px; }
-
+ 
         /* APP FULLSCREEN - HyperOS 3 animation */
         .app-fullscreen {
             position: fixed;
@@ -535,16 +533,16 @@
             flex-direction: column;
             transform-origin: center center;
         }
-
+ 
         .app-fullscreen.show {
             display: flex;
             animation: hyperOpen 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
-
+ 
         .app-fullscreen.closing {
             animation: hyperClose 0.38s cubic-bezier(0.4, 0, 1, 1) forwards;
         }
-
+ 
         @keyframes hyperOpen {
             0% {
                 opacity: 0;
@@ -561,7 +559,7 @@
                 border-radius: 0px;
             }
         }
-
+ 
         @keyframes hyperClose {
             0% {
                 opacity: 1;
@@ -574,7 +572,7 @@
                 border-radius: 40px;
             }
         }
-
+ 
         .app-header {
             display: flex;
             align-items: center;
@@ -582,22 +580,22 @@
             border-bottom: 1px solid rgba(255,255,255,0.06);
             gap: 12px;
         }
-
+ 
         .app-title {
             font-size: 1.3rem;
             font-weight: 700;
             flex: 1;
         }
-
+ 
         .app-content {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
             scrollbar-width: none;
         }
-
+ 
         .app-content::-webkit-scrollbar { display: none; }
-
+ 
         /* CAMERA */
         #cam {
             width: 100%;
@@ -606,7 +604,7 @@
             background: #000;
             display: block;
         }
-
+ 
         .camera-controls {
             display: flex;
             gap: 10px;
@@ -614,7 +612,7 @@
             flex-wrap: wrap;
             margin-top: 14px;
         }
-
+ 
         .camera-btn {
             padding: 12px 20px;
             border-radius: 999px;
@@ -630,10 +628,10 @@
             font-size: 0.88rem;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .camera-btn:hover { background: rgba(var(--accent), 0.45); }
         .camera-btn .material-icons { font-size: 18px; }
-
+ 
         /* GALLERY - improved */
         .gallery-header {
             display: flex;
@@ -641,9 +639,9 @@
             align-items: center;
             margin-bottom: 16px;
         }
-
+ 
         .gallery-header h3 { font-size: 1.1rem; font-weight: 700; opacity: 0.9; }
-
+ 
         .gallery-empty {
             display: flex;
             flex-direction: column;
@@ -653,16 +651,16 @@
             height: 200px;
             opacity: 0.4;
         }
-
+ 
         .gallery-empty .material-icons { font-size: 48px; }
         .gallery-empty p { font-size: 0.9rem; }
-
+ 
         .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 10px;
         }
-
+ 
         .gallery-item {
             position: relative;
             border-radius: 18px;
@@ -671,13 +669,13 @@
             aspect-ratio: 1;
             cursor: pointer;
         }
-
+ 
         .gallery-item img, .gallery-item video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-
+ 
         .gallery-item-overlay {
             position: absolute;
             inset: 0;
@@ -688,9 +686,9 @@
             align-items: flex-end;
             padding: 8px;
         }
-
+ 
         .gallery-item:hover .gallery-item-overlay { opacity: 1; }
-
+ 
         .gallery-del-btn {
             width: 28px; height: 28px;
             border-radius: 50%;
@@ -704,9 +702,9 @@
             margin-left: auto;
             -webkit-tap-highlight-color: transparent;
         }
-
+ 
         .gallery-del-btn .material-icons { font-size: 14px; }
-
+ 
         /* VIDEO BADGE */
         .video-badge {
             position: absolute;
@@ -721,9 +719,9 @@
             align-items: center;
             gap: 4px;
         }
-
+ 
         .video-badge .material-icons { font-size: 12px; }
-
+ 
         /* CALCULATOR */
         .calc-wrap {
             display: flex;
@@ -732,7 +730,7 @@
             max-width: 320px;
             margin: 0 auto;
         }
-
+ 
         .calc-display {
             background: rgba(0,0,0,0.25);
             border-radius: 26px;
@@ -740,16 +738,16 @@
             text-align: right;
             border: 1px solid rgba(255,255,255,0.06);
         }
-
+ 
         .calc-expr { font-size: 0.88rem; opacity: 0.45; min-height: 18px; margin-bottom: 4px; word-break: break-all; }
         .calc-result { font-size: 3rem; font-weight: 200; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
+ 
         .calc-buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 9px;
         }
-
+ 
         .calc-btn {
             height: 66px;
             border-radius: 50%;
@@ -764,19 +762,19 @@
             -webkit-tap-highlight-color: transparent;
             outline: none;
         }
-
+ 
         .calc-btn:active { transform: scale(0.87); filter: brightness(1.3); }
         .calc-btn:hover { filter: brightness(1.15); }
-
+ 
         .calc-btn.num { background: rgba(80,80,110,0.55); color: white; }
         .calc-btn.op { background: rgba(var(--accent), 0.65); color: white; }
         .calc-btn.fn { background: rgba(110,110,140,0.45); color: white; font-size: 1rem; }
         .calc-btn.eq { background: var(--accent-hex); color: white; }
         .calc-btn.zero { border-radius: 33px; grid-column: span 2; justify-content: flex-start; padding-left: 24px; }
-
+ 
         /* MISC */
         #wallpaper-input, #media-picker { display: none; }
-
+ 
         .overlay {
             position: fixed;
             inset: 0;
@@ -787,9 +785,9 @@
             transition: opacity 0.3s ease;
             z-index: 9999;
         }
-
+ 
         .overlay.show { opacity:1; pointer-events:all; }
-
+ 
         .brightness-overlay {
             position: fixed;
             inset: 0;
@@ -803,7 +801,7 @@
 </head>
 <body class="dark">
     <div class="brightness-overlay" id="brightness-overlay"></div>
-
+ 
     <div class="status-bar">
         <div class="time" id="time">12:00</div>
         <div class="status-icons">
@@ -812,28 +810,28 @@
             <span class="material-icons">battery_full</span>
         </div>
     </div>
-
+ 
     <div class="home-screen" id="home-screen">
         <div class="app-grid" id="app-grid"></div>
     </div>
-
+ 
     <div class="dock liquidGL" id="dock">
         <div class="dock-icon" onclick="openApp('phone','Phone')"><span class="material-icons">phone</span></div>
         <div class="dock-icon" onclick="openApp('messages','Messages')"><span class="material-icons">message</span></div>
         <div class="dock-icon" onclick="openApp('browser','Browser')"><span class="material-icons">public</span></div>
         <div class="dock-icon" onclick="openSettings()"><span class="material-icons">settings</span></div>
     </div>
-
+ 
     <div class="home-button" id="home-button" onclick="goHome()">
         <span class="material-icons">home</span>
     </div>
-
+ 
     <div class="context-menu" id="context-menu">
         <div class="menu-item" onclick="createFolder()"><span class="material-icons">create_new_folder</span><span>New Folder</span></div>
         <div class="menu-item" onclick="toggleIconSize()"><span class="material-icons">zoom_in</span><span id="icon-size-text">Large Icons</span></div>
         <div class="menu-item" onclick="openSettings()"><span class="material-icons">settings</span><span>Settings</span></div>
     </div>
-
+ 
     <div class="control-center" id="control-center">
         <div class="panel-header">
             <h2>Controls</h2>
@@ -867,7 +865,7 @@
             </div>
         </div>
     </div>
-
+ 
     <div class="settings-panel" id="settings-panel">
         <div class="panel-header">
             <h2>Settings</h2>
@@ -907,25 +905,25 @@
             </div>
         </div>
     </div>
-
+ 
     <div class="app-fullscreen" id="app-fullscreen">
         <div class="app-header">
             <div class="app-title" id="app-title">App</div>
         </div>
         <div class="app-content" id="app-content"></div>
     </div>
-
+ 
     <div class="folder-modal" id="folder-modal" onclick="closeFolderModal(event)">
         <div class="folder-modal-inner">
             <div class="folder-modal-title" id="folder-modal-title">Folder</div>
             <div class="folder-modal-grid" id="folder-modal-grid"></div>
         </div>
     </div>
-
+ 
     <div class="overlay" id="overlay" onclick="closeAll()"></div>
     <input type="file" id="wallpaper-input" accept="image/*" onchange="loadCustomWallpaper(this)">
     <input type="file" id="media-picker" accept="image/*,video/*" multiple>
-
+ 
     <script>
         const myApps=[
             {name:'Camera',icon:'camera_alt',id:'camera'},
@@ -941,26 +939,26 @@
             {name:'Maps',icon:'map',id:'maps'},
             {name:'Email',icon:'email',id:'email'}
         ];
-
+ 
         let largeIconsEnabled=false,longPressTimer,permissions={camera:true};
         let stream,recorder,chunks=[];
         let folders=JSON.parse(localStorage.getItem('folders')||'[]');
         let calcExpr='',calcResult='0';
-
+ 
         // Global accent - NEVER hardcoded blue
         let accentR=180,accentG=180,accentB=220;
-
+ 
         function setAccent(r,g,b){
             accentR=r; accentG=g; accentB=b;
             document.documentElement.style.setProperty('--accent',`${r}, ${g}, ${b}`);
             document.documentElement.style.setProperty('--accent-hex',`rgb(${r},${g},${b})`);
         }
-
+ 
         function populateApps(){
             const grid=document.getElementById('app-grid');
             grid.innerHTML='';
             const appsInFolders=folders.flatMap(f=>f.apps);
-
+ 
             folders.forEach((folder,fi)=>{
                 const wrap=document.createElement('div');
                 wrap.className='folder-wrapper';
@@ -983,7 +981,7 @@
                 wrap.appendChild(name);
                 grid.appendChild(wrap);
             });
-
+ 
             myApps.filter(app=>!appsInFolders.includes(app.id)).forEach((app,i)=>{
                 const el=document.createElement('div');
                 el.className='app-icon';
@@ -993,12 +991,12 @@
                 grid.appendChild(el);
             });
         }
-
+ 
         // Add iconAppear keyframe
         const styleEl=document.createElement('style');
         styleEl.textContent=`@keyframes iconAppear { from{opacity:0;transform:scale(0.75) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)} }`;
         document.head.appendChild(styleEl);
-
+ 
         // Long press
         const homeScreen=document.getElementById('home-screen');
         homeScreen.addEventListener('touchstart',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e.touches[0]),500);},{passive:true});
@@ -1007,7 +1005,7 @@
         homeScreen.addEventListener('mousedown',e=>{if(e.target===homeScreen||e.target.closest('.app-grid'))longPressTimer=setTimeout(()=>showContextMenu(e),500);});
         homeScreen.addEventListener('mouseup',()=>clearTimeout(longPressTimer));
         homeScreen.addEventListener('mousemove',()=>clearTimeout(longPressTimer));
-
+ 
         function showContextMenu(touch){
             const menu=document.getElementById('context-menu'),ov=document.getElementById('overlay');
             document.querySelectorAll('.app-icon,.folder-wrapper').forEach(el=>el.classList.add('shake'));
@@ -1016,7 +1014,7 @@
             menu.style.left=`${Math.min(x,window.innerWidth-230)}px`;
             menu.style.top=`${Math.min(y,window.innerHeight-200)}px`;
         }
-
+ 
         // FOLDERS
         function createFolder(){
             const name=prompt('Folder name:','Folder');
@@ -1029,7 +1027,7 @@
             localStorage.setItem('folders',JSON.stringify(folders));
             populateApps(); closeAll();
         }
-
+ 
         function openFolder(fi){
             const folder=folders[fi];
             document.getElementById('folder-modal-title').textContent=folder.name;
@@ -1046,18 +1044,18 @@
             });
             document.getElementById('folder-modal').classList.add('show');
         }
-
+ 
         function closeFolderModal(e){
             if(!e||e.target===document.getElementById('folder-modal'))
                 document.getElementById('folder-modal').classList.remove('show');
         }
-
+ 
         // HOME BUTTON toggle
         function setHomeButtonVisible(v){
             document.getElementById('home-button').classList.toggle('visible',v);
             document.getElementById('dock').classList.toggle('hidden',v);
         }
-
+ 
         function goHome(){
             const app=document.getElementById('app-fullscreen');
             app.classList.add('closing');
@@ -1068,18 +1066,18 @@
                 if(recorder){recorder.stop();recorder=null;}
             },{once:true});
         }
-
+ 
         // OPEN APP - uses current accent color
         async function openApp(appId,appName){
             const fullscreen=document.getElementById('app-fullscreen');
             const titleEl=document.getElementById('app-title');
             const content=document.getElementById('app-content');
-
+ 
             // App background uses accent
             fullscreen.style.background=`rgb(${Math.max(accentR-40,0)},${Math.max(accentG-40,0)},${Math.max(accentB-20,0)})`;
-
+ 
             titleEl.textContent=appName;
-
+ 
             if(appId==='camera'){
                 if(!permissions.camera){
                     content.innerHTML='<p style="padding:30px;opacity:0.6;">Camera disabled in Settings</p>';
@@ -1111,7 +1109,7 @@
                 fullscreen.classList.add('show'); setHomeButtonVisible(true);
             }
         }
-
+ 
         // CALCULATOR
         function renderCalculator(content){
             calcExpr=''; calcResult='0';
@@ -1144,7 +1142,7 @@
                 </div>
             </div>`;
         }
-
+ 
         function cNum(n){
             if(calcResult==='0'&&n!=='.')calcResult=n;
             else calcResult+=n;
@@ -1170,7 +1168,7 @@
             else if(fn==='+/-'){calcResult=String(-parseFloat(calcResult));document.getElementById('cr').textContent=calcResult;}
             else if(fn==='%'){calcResult=String(parseFloat(calcResult)/100);document.getElementById('cr').textContent=calcResult;}
         }
-
+ 
         // CAMERA FUNCTIONS
         function takePhoto(){
             const cam=document.getElementById('cam');if(!cam)return;
@@ -1178,7 +1176,7 @@
             c.getContext('2d').drawImage(cam,0,0,640,480);
             saveMedia('image',c.toDataURL()); alert('Photo saved!');
         }
-
+ 
         function toggleVideo(){
             if(!recorder){
                 recorder=new MediaRecorder(stream);
@@ -1195,13 +1193,13 @@
                 document.getElementById('vbtn').textContent='Record';
             }
         }
-
+ 
         function saveMedia(type,data){
             const items=JSON.parse(localStorage.media||'[]');
             items.push({type,data,date:Date.now()});
             localStorage.media=JSON.stringify(items);
         }
-
+ 
         function renderGallery(){
             const wrap=document.getElementById('gallery-wrap');
             if(!wrap)return;
@@ -1237,35 +1235,35 @@
                 grid.appendChild(c);
             });
         }
-
+ 
         function deleteMedia(idx){
             const items=JSON.parse(localStorage.media||'[]');
             items.splice(idx,1);
             localStorage.media=JSON.stringify(items);
             renderGallery();
         }
-
+ 
         document.getElementById('media-picker').onchange=e=>{
             [...e.target.files].forEach(f=>{
                 saveMedia(f.type.startsWith('video')?'video':'image',URL.createObjectURL(f));
             });
             alert('Imported!');
         };
-
+ 
         function toggleControlCenter(){
             const cc=document.getElementById('control-center'),ov=document.getElementById('overlay');
             if(cc.classList.contains('show')){cc.classList.remove('show');ov.classList.remove('show');}
             else{closeAll();cc.classList.add('show');ov.classList.add('show');}
         }
-
+ 
         function adjustBrightness(v){
             document.getElementById('brightness-overlay').style.opacity=((100-v)/80)*0.6;
             localStorage.setItem('brightness',v);
         }
-
+ 
         function openSettings(){closeAll();document.getElementById('settings-panel').classList.add('show');document.getElementById('overlay').classList.add('show');}
         function closeSettings(){document.getElementById('settings-panel').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
-
+ 
         function toggleIconSize(){
             const b=document.body,toggle=document.getElementById('icon-size-toggle'),text=document.getElementById('icon-size-text');
             largeIconsEnabled=!largeIconsEnabled;
@@ -1275,7 +1273,7 @@
             localStorage.setItem('largeIcons',largeIconsEnabled);
             closeAll();
         }
-
+ 
         function toggleTheme(){
             const b=document.body,t=document.getElementById('theme-toggle');
             const goLight=b.classList.contains('dark');
@@ -1285,13 +1283,13 @@
             localStorage.setItem('theme',goLight?'light':'dark');
             setTimeout(updateAdaptiveColors,50);
         }
-
+ 
         function togglePrivacy(item,type){
             permissions[type]=!permissions[type];
             item.querySelector('.toggle-switch').classList.toggle('active',permissions[type]);
             localStorage.setItem('permissions',JSON.stringify(permissions));
         }
-
+ 
         // ---- CORE: FULL ADAPTIVE COLORS ----
         // Extract RGB from wallpaper, apply EVERYWHERE with NO fallback to hardcoded blue
         function updateAdaptiveColors(){
@@ -1313,7 +1311,7 @@
                         const px=data.length/4;
                         for(let i=0;i<data.length;i+=4){r+=data[i];g+=data[i+1];b+=data[i+2];}
                         r=Math.round(r/px); g=Math.round(g/px); b=Math.round(b/px);
-
+ 
                         // Boost saturation so accent is vivid, not grey
                         const max=Math.max(r,g,b),min=Math.min(r,g,b);
                         const sat=(max-min)/(max||1);
@@ -1336,14 +1334,14 @@
                 applySystemColors();
             }
         }
-
+ 
         function applySystemColors(){
             const isDark=document.body.classList.contains('dark');
             if(isDark) setAccent(130,140,200);
             else setAccent(100,140,210);
             applyEverything();
         }
-
+ 
         function applyEverything(){
             const r=accentR,g=accentG,b=accentB;
             const iconBg=`rgba(${r},${g},${b},0.3)`;
@@ -1351,7 +1349,7 @@
             const panelBg=`rgba(${Math.max(r-40,8)},${Math.max(g-40,8)},${Math.max(b-20,12)},0.97)`;
             const tileBg=`rgba(${r},${g},${b},0.14)`;
             const appBg=`rgb(${Math.max(r-50,5)},${Math.max(g-50,5)},${Math.max(b-30,8)})`;
-
+ 
             // Icons
             document.querySelectorAll('.icon,.folder-icon').forEach(el=>{el.style.background=iconBg;el.style.borderColor=iconBorder;});
             // Dock icons
@@ -1370,7 +1368,7 @@
             // Toggle active color
             document.documentElement.style.setProperty('--accent-hex',`rgb(${r},${g},${b})`);
         }
-
+ 
         function loadCustomWallpaper(input){
             const file=input.files[0];
             if(!file)return;
@@ -1384,7 +1382,7 @@
             };
             reader.readAsDataURL(file);
         }
-
+ 
         function closeAll(){
             document.getElementById('control-center').classList.remove('show');
             document.getElementById('settings-panel').classList.remove('show');
@@ -1392,21 +1390,21 @@
             document.getElementById('overlay').classList.remove('show');
             document.querySelectorAll('.app-icon,.folder-wrapper').forEach(el=>el.classList.remove('shake'));
         }
-
+ 
         function updateTime(){
             const now=new Date();
             document.getElementById('time').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         }
-
+ 
         // INIT
         populateApps();
         updateTime();
         setInterval(updateTime,1000);
-
+ 
         if(localStorage.getItem('theme')==='light'){document.body.classList.replace('dark','light');document.getElementById('theme-toggle').classList.remove('active');}
         if(localStorage.getItem('largeIcons')==='true'){largeIconsEnabled=true;document.body.classList.add('large-icons');document.getElementById('icon-size-toggle').classList.add('active');}
         const savedBr=localStorage.getItem('brightness');if(savedBr){document.getElementById('brightness-slider').value=savedBr;adjustBrightness(savedBr);}
-
+ 
         const savedWall=localStorage.getItem('customWallpaper');
         if(savedWall){
             document.body.style.setProperty('--custom-wallpaper',`url('${savedWall}')`);
@@ -1415,18 +1413,49 @@
         }else{
             updateAdaptiveColors();
         }
-
+ 
         const savedPerm=localStorage.getItem('permissions');
         if(savedPerm){permissions=JSON.parse(savedPerm);if(!permissions.camera)document.getElementById('camera-toggle').classList.remove('active');}
-
-        window.addEventListener('load',()=>{
-            setTimeout(()=>{
-                if(typeof liquidGL!=='undefined'){
-                    try{liquidGL({target:'.liquidGL',snapshot:'body',resolution:2,refraction:0.01,bevelDepth:0.08,bevelWidth:0.15,frost:2,shadow:true,specular:true,reveal:'fade'});}
-                    catch(e){}
+ 
+        // liquidGL init happens AFTER this script, in its own block below
+    </script>
+ 
+    <!-- Scripts al final del body segun docs oficiales de liquidGL -->
+    <script src="https://raw.githubusercontent.com/naughtyduk/liquidGL/main/scripts/html2canvas.min.js"></script>
+    <script src="https://raw.githubusercontent.com/naughtyduk/liquidGL/main/scripts/liquidGL.js"></script>
+    <script>
+        // Segun la doc: DOMContentLoaded, estados iniciales YA seteados antes de llamar liquidGL()
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof liquidGL !== 'undefined') {
+                    try {
+                        liquidGL({
+                            target: '.liquidGL',
+                            snapshot: 'body',
+                            resolution: 2.0,
+                            refraction: 0.01,
+                            bevelDepth: 0.052,
+                            bevelWidth: 0.211,
+                            frost: 2,
+                            shadow: true,
+                            specular: true,
+                            reveal: 'fade',
+                            tilt: false,
+                            on: {
+                                init(instance) {
+                                    console.log('liquidGL ready!', instance);
+                                    updateAdaptiveColors();
+                                }
+                            }
+                        });
+                    } catch(e) {
+                        console.warn('liquidGL init failed:', e);
+                    }
+                } else {
+                    console.warn('liquidGL not loaded - CSS backdrop-filter fallback active');
+                    updateAdaptiveColors();
                 }
-                updateAdaptiveColors();
-            },800);
+            }, 500);
         });
     </script>
 </body>
